@@ -20,7 +20,7 @@ normalize(image, nawm_mask)
 %%     ~~Describe \code{nawm_mask} here~~
 }
 }
-}
+
 \details{
 %%  ~~ If necessary, more details than the description above ~~
 }
@@ -50,7 +50,7 @@ Shinohara, R. T., Goldsmith, J., Mateen, F. J., Crainiceanu, C., & Reich, D. S. 
 \examples{
 
 
-
+}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
 \keyword{ ~kwd1 }

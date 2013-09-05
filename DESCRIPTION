@@ -6,4 +6,6 @@ Date: 2013-08-12
 Author: Elizabeth M. Sweeney
 Maintainer: Elizabeth M. Sweeney <emsweene@jhsph.edu>
 Description: Creates probability maps of incident and enlarging lesion voxels from a baseline and followup MRI study.  
-License: What license is it under?
+License: GPL
+Depends: 
+  AnalyzeFMRI

@@ -49,7 +49,7 @@ Elizabeth M. Sweeney
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-
+\dontrun{
 ##normalize the baseline_t2 image##
 normalized_baseline_t2 <- normalize(baseline_t2, nawm_mask, brain_mask)
 
@@ -59,5 +59,6 @@ normalized_follow_up_t2 <- normalize(follow_up_t2, nawm_mask, brain_mask)
 ##perform voxel selection procedure##
 candidate_voxel_mask <- voxel_select(normalized_baseline_t2, 
 normalized_follow_up_t2, brain_mask)
-
+}
+}
 

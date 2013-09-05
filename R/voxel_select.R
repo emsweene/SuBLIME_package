@@ -1,7 +1,6 @@
 voxel_select <- function(normalized_baseline_t2, normalized_follow_up_t2, brain_mask){
   
   ##requires the package AnalyzeFMRI for volume smoothing##	
-  require(AnalyzeFMRI)
   
   ##calculate the t2 subtraction volume##
   t2_difference <- normalized_follow_up_t2 - normalized_baseline_t2

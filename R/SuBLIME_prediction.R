@@ -3,7 +3,6 @@ SuBLIME_prediction <- function(baseline_flair, follow_up_flair, baseline_pd, fol
                     nawm_mask, brain_mask, model = SuBLIME_model){
   
   ##requires the package AnalyzeFMRI for volume smoothing##
-  require(AnalyzeFMRI)
   
   ##normalize all images##
   normalized_baseline_flair <- normalize(image = baseline_flair, nawm_mask = nawm_mask)
