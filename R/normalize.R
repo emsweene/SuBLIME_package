@@ -14,7 +14,7 @@
 normalize <- function(image, mask){
 	
   ### Check dimensions
-  stopifnot(all.equal(dim(mask), dim(image)))
+  stopifnot(all.equal(dim(mask)[1:3], dim(image)[1:3]))
   
   ### Need a logical mask
   stopifnot(inherits(mask[1], "logical"))

@@ -21,10 +21,12 @@
 #' @param time_diff Difference in time (in days) between baseline and
 #' followup, numeric
 #' @param baseline_nawm_mask Baseline Normal Appearing white matter mask, either array or class nifti.  
-#' Will be coerced to logical usign nawm_mask $> 0$.
+#' Will be coerced to logical usign baseline_nawm_mask $> 0$.
 #' @param follow_up_nawm_mask Followup Normal Appearing white matter mask, either array or class nifti.  
-#' Will be coerced to logical usign nawm_mask $> 0$.
-#' @param brain_mask Brain mask, either array or class nifti.  Will be #' coerced to logical usign nawm_mask $> 0$.
+#' Will be coerced to logical usign follow_up_nawm_mask $> 0$. Defaults to baseline_nawm_mask if 
+#' not specified
+#' @param brain_mask Brain mask, either array or class nifti.  
+#' Will be #' coerced to logical usign brain_mask $> 0$.
 #' @param model Model of class \code{\link{lm}}
 #' @param smooth.using Character vector to decide if using 
 #' @param verbose Print Diagnostic Messages
@@ -43,8 +45,11 @@
 #' f_files = system.file(file.path("01/FollowUp", modals), package="SuBLIME")
 #' f_imgs = lapply(f_files, readNIfTI, reorient=FALSE) 
 #' names(base_imgs) = names(f_imgs) = modes
-#' nawm_file =  system.file("01/FollowUp/nawm.nii.gz", package="SuBLIME")
-#' nawm_mask =  readNIfTI(nawm_file, reorient=FALSE)
+#' baseline_nawm_file =  system.file("01/Baseline/nawm.nii.gz", package="SuBLIME")
+#' baseline_nawm_mask =  readNIfTI(baseline_nawm_file, reorient=FALSE)
+#' baseline_nawm_mask = drop(baseline_nawm_mask)
+#' follow_up_nawm_file =  system.file("01/FollowUp/nawm.nii.gz", package="SuBLIME")
+#' follow_up_nawm_mask =  readNIfTI(follow_up_nawm_file, reorient=FALSE) 
 #' brain_file =  system.file("01/duramask.nii.gz", package="SuBLIME")
 #' brain_mask =  readNIfTI(brain_file, reorient=FALSE) 
 #' model = c("(Intercept)" =-7.7420, FLAIR =0.7412, PD =0.4099, T2=-0.3226,
@@ -60,7 +65,7 @@
 #' baseline_t1 = base_imgs[["VolumetricT1"]],
 #' follow_up_t1 = f_imgs[["VolumetricT1"]],
 #' time_diff = 1,
-#' nawm_mask = nawm_mask,
+#' baseline_nawm_mask = baseline_nawm_mask,
 #' brain_mask = brain_mask,
 #' model = model
 #' )
@@ -71,7 +76,7 @@ SuBLIME_prediction <- function(baseline_flair, follow_up_flair, baseline_pd,
                                follow_up_t1, time_diff, baseline_nawm_mask, 
                                follow_up_nawm_mask = baseline_nawm_mask, brain_mask, 
                                model = SuBLIME_model, 
-                               smooth.using = c("GaussSmoothArray","none"),
+                               smooth.using = c("GaussSmoothArray", "none"),
                                verbose = TRUE){
   
   ##requires the package AnalyzeFMRI for volume smoothing##
@@ -80,10 +85,15 @@ SuBLIME_prediction <- function(baseline_flair, follow_up_flair, baseline_pd,
     return(c(arr))
   }
   
-  nm = nawm_mask[1]
+  nm = baseline_nawm_mask[1]
   if (!inherits(nm, "logical")){
-    nawm_mask = nawm_mask > 0
+    baseline_nawm_mask = baseline_nawm_mask > 0
   }
+  
+  nm = follow_up_nawm_mask[1]
+  if (!inherits(nm, "logical")){
+    follow_up_nawm_mask = follow_up_nawm_mask > 0
+  }  
   
   bm = brain_mask[1]
   if (!inherits(bm, "logical")){
@@ -111,7 +121,7 @@ SuBLIME_prediction <- function(baseline_flair, follow_up_flair, baseline_pd,
                 baseline_flair = baseline_flair,
                 baseline_pd = baseline_pd, 
                 baseline_t2 = baseline_t2,  
-                baseline_t1 = baseline_t1,
+                baseline_t1 = baseline_t1
   )
   
   #### check image dimensions
@@ -131,7 +141,7 @@ SuBLIME_prediction <- function(baseline_flair, follow_up_flair, baseline_pd,
     x = normalize(image = image, mask = baseline_nawm_mask)
   })
 
-  norm.f.imgs = lapply(b.imgs, function(image){
+  norm.f.imgs = lapply(f.imgs, function(image){
     x = normalize(image = image, mask = follow_up_nawm_mask)
   })
   
@@ -168,7 +178,7 @@ SuBLIME_prediction <- function(baseline_flair, follow_up_flair, baseline_pd,
   ##Make SuBLIME predicitons##
   if (inherits(model, "glm")){
     preds =   predict(
-      object = SuBLIME_model, 
+      object = model, 
       newdata = SuBLIME_data, 
       type= "response", interval="none")
   } else if (inherits(model, "matrix")){

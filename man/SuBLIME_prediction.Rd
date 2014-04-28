@@ -38,14 +38,15 @@ SuBLIME_prediction(baseline_flair, follow_up_flair, baseline_pd, follow_up_pd,
 
   \item{baseline_nawm_mask}{Baseline Normal Appearing white
   matter mask, either array or class nifti. Will be coerced
-  to logical usign nawm_mask $> 0$.}
+  to logical usign baseline_nawm_mask $> 0$.}
 
   \item{follow_up_nawm_mask}{Followup Normal Appearing
   white matter mask, either array or class nifti. Will be
-  coerced to logical usign nawm_mask $> 0$.}
+  coerced to logical usign follow_up_nawm_mask $> 0$.
+  Defaults to baseline_nawm_mask if not specified}
 
   \item{brain_mask}{Brain mask, either array or class
-  nifti.  Will be #' coerced to logical usign nawm_mask $>
+  nifti. Will be #' coerced to logical usign brain_mask $>
   0$.}
 
   \item{model}{Model of class \code{\link{lm}}}
@@ -72,8 +73,11 @@ base_imgs = lapply(base_files, readNIfTI, reorient=FALSE)
 f_files = system.file(file.path("01/FollowUp", modals), package="SuBLIME")
 f_imgs = lapply(f_files, readNIfTI, reorient=FALSE)
 names(base_imgs) = names(f_imgs) = modes
-nawm_file =  system.file("01/FollowUp/nawm.nii.gz", package="SuBLIME")
-nawm_mask =  readNIfTI(nawm_file, reorient=FALSE)
+baseline_nawm_file =  system.file("01/Baseline/nawm.nii.gz", package="SuBLIME")
+baseline_nawm_mask =  readNIfTI(baseline_nawm_file, reorient=FALSE)
+baseline_nawm_mask = drop(baseline_nawm_mask)
+follow_up_nawm_file =  system.file("01/FollowUp/nawm.nii.gz", package="SuBLIME")
+follow_up_nawm_mask =  readNIfTI(follow_up_nawm_file, reorient=FALSE)
 brain_file =  system.file("01/duramask.nii.gz", package="SuBLIME")
 brain_mask =  readNIfTI(brain_file, reorient=FALSE)
 model = c("(Intercept)" =-7.7420, FLAIR =0.7412, PD =0.4099, T2=-0.3226,
@@ -89,7 +93,7 @@ follow_up_t2 = f_imgs[["T2"]],
 baseline_t1 = base_imgs[["VolumetricT1"]],
 follow_up_t1 = f_imgs[["VolumetricT1"]],
 time_diff = 1,
-nawm_mask = nawm_mask,
+baseline_nawm_mask = baseline_nawm_mask,
 brain_mask = brain_mask,
 model = model
 )
