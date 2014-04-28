@@ -1,3 +1,17 @@
+#' @title Select Potential Voxels
+#'
+#' @description Takes the difference in T2 images, smoothes this 
+#' difference, and then finds voxels greater than one SD of the 
+#' smooothed mask as potential voxels and returns it
+#' @param normalized_baseline_t2 Baseline T2 image, array or object class nifti that
+#' @param normalized_follow_up_t2 Followup T2 image, array or object class nifti that
+#' @param brain_mask A 3D 0-1 mask that delimits where the smoothing occurs, passed to \code{\link{GaussSmoothArray}}
+#' @export
+#' @keywords Voxel Selection
+#' @seealso GaussSmoothArray
+#' @return Array or object class nifti depending on imput iamges
+#' @alias
+
 voxel_select <- function(normalized_baseline_t2, normalized_follow_up_t2, brain_mask){
   
   ##requires the package AnalyzeFMRI for volume smoothing##	
@@ -6,12 +20,17 @@ voxel_select <- function(normalized_baseline_t2, normalized_follow_up_t2, brain_
   t2_difference <- normalized_follow_up_t2 - normalized_baseline_t2
   
   ##smooth the t2 subtraction volume##
-  smoothed_t2_diff<-GaussSmoothArray(t2_difference,sigma=diag(3,3),ksize=5, 
-                                     mask = brain_mask)
+  smoothed_t2_diff<- GaussSmoothArray(t2_difference,
+    sigma=diag(3,3),
+    ksize=5, 
+    mask = brain_mask)
                                      
   ##threshold t2 subtraction volume to create voxel selection mask##                                   
-  voxel_selection_mask <- array(0, dim=dim(smoothed_t2_diff))
-  voxel_selection_mask[smoothed_t2_diff > sd(smoothed_t2_diff)] <- 1
+  voxel_selection_mask = t2_difference
+  voxel_selection_mask[is.na(voxel_selection_mask)] = FALSE
+  voxel_selection_mask[!is.na(voxel_selection_mask)] = FALSE
+  # voxel_selection_mask <- array(FALSE, dim=dim(smoothed_t2_diff))
+  voxel_selection_mask[smoothed_t2_diff > sd(smoothed_t2_diff)] <- TRUE
   
   ##return voxel selection mask## 
   return(voxel_selection_mask)
