@@ -80,6 +80,7 @@ follow_up_nawm_file =  system.file("01/FollowUp/nawm.nii.gz", package="SuBLIME")
 follow_up_nawm_mask =  readNIfTI(follow_up_nawm_file, reorient=FALSE)
 brain_file =  system.file("01/duramask.nii.gz", package="SuBLIME")
 brain_mask =  readNIfTI(brain_file, reorient=FALSE)
+# load(system.file("data/SuBLIME_model.rda", package="SuBLIME" ))
 model = c("(Intercept)" =-7.7420, FLAIR =0.7412, PD =0.4099, T2=-0.3226,
      T1= 0.7807, FLAIR_diff =  0.1841, PD_diff= 0.5383,
      T2_diff = 0.8546, T1_diff = -0.9016)

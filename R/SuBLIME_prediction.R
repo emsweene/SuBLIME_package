@@ -52,9 +52,8 @@
 #' follow_up_nawm_mask =  readNIfTI(follow_up_nawm_file, reorient=FALSE) 
 #' brain_file =  system.file("01/duramask.nii.gz", package="SuBLIME")
 #' brain_mask =  readNIfTI(brain_file, reorient=FALSE) 
-#' model = c("(Intercept)" =-7.7420, FLAIR =0.7412, PD =0.4099, T2=-0.3226,
-#'      T1= 0.7807, FLAIR_diff =  0.1841, PD_diff= 0.5383,
-#'      T2_diff = 0.8546, T1_diff = -0.9016)
+#' data(SuBLIME_model)
+#' model = SuBLIME_model
 #' outimg = SuBLIME_prediction(
 #' baseline_flair = base_imgs[["FLAIR"]],
 #' follow_up_flair= f_imgs[["FLAIR"]],
@@ -175,12 +174,13 @@ SuBLIME_prediction <- function(baseline_flair, follow_up_flair, baseline_pd,
     cat("Making Predictions\n")
   }
   
+  model = coef(model)
   ##Make SuBLIME predicitons##
   if (inherits(model, "glm")){
     preds =   predict(
       object = model, 
       newdata = SuBLIME_data, 
-      type= "response", interval="none")
+      type= "response", interval="none", se=FALSE)
   } else if (inherits(model, "matrix")){
     rn = rownames(model)
     cn = colnames(SuBLIME_data)
