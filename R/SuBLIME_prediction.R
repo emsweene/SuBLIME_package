@@ -31,9 +31,13 @@
 #' @param model Model of class \code{\link{lm}} or set of coefficients.
 #' @param voxsel Do Voxel Selection based on normalized T2 (logical)
 #' @param smooth.using Character vector to decide if using 
-#' @param verbose Print Diagnostic Messages
 #' \code{\link{GaussSmoothArray}} from AnalyzeFMRI or fslsmooth from
 #' fslr package
+#' @param sigma Sigma passed to  \code{\link{GaussSmoothArray}} and 
+#' \code{\link{voxel_select}}
+#' @param ksize Kernel size passed to \code{\link{GaussSmoothArray}} and
+#' \code{\link{voxel_select}} 
+#' @param verbose Print Diagnostic Messages
 #' @export
 #' @keywords Sublime_prediction
 #' @seealso predict
@@ -57,15 +61,13 @@
 #' 
 #' follow_up_nawm_mask = NULL
 #' baseline_nawm_mask = NULL
-#' names(base_imgs) = paste0("baseline_", c("flair", "pd", "t2", "t1"))
-#' names(f_imgs) = paste0("follow_up_", c("flair", "pd", "t2", "t1"))
-#' attach(base_imgs)
-#' attach(f_imgs)
 #' smooth.using = "GaussSmoothArray"
 #' verbose = TRUE
 #' time_diff = 10
 #' voxsel = FALSE
 #' model = SuBLIME_model
+#' sigma = diag(3,3)
+#' ksize = 3
 #' 
 #' outimg = SuBLIME_prediction(
 #' baseline_flair = base_imgs[["FLAIR"]],
@@ -79,8 +81,14 @@
 #' time_diff = time_diff,
 #' baseline_nawm_mask = baseline_nawm_mask,
 #' brain_mask = brain_mask,
+#' voxsel = voxsel,
 #' model = model
 #' )
+#'
+#' names(base_imgs) = paste0("baseline_", c("flair", "pd", "t2", "t1"))
+#' names(f_imgs) = paste0("follow_up_", c("flair", "pd", "t2", "t1"))
+#' attach(base_imgs)
+#' attach(f_imgs)
 #'}
 
 SuBLIME_prediction <- function(baseline_flair, follow_up_flair, baseline_pd, 
@@ -90,6 +98,7 @@ SuBLIME_prediction <- function(baseline_flair, follow_up_flair, baseline_pd,
                                model = SuBLIME_model, 
                                voxsel = TRUE,
                                smooth.using = c("GaussSmoothArray", "none"),
+                               sigma=diag(3,3), ksize = 3,
                                verbose = TRUE){
   
   stopifnot(time_diff > 0)
@@ -122,7 +131,7 @@ SuBLIME_prediction <- function(baseline_flair, follow_up_flair, baseline_pd,
   img.dim = dim(baseline_flair)[1:3]
   
   ##create an image with the time difference between scans##
-  time_diff = array(time_diff,dim=img.dim)
+  time_diff = array(time_diff, dim=img.dim)
   
   f.imgs = list(
                 follow_up_flair = follow_up_flair,
@@ -146,7 +155,7 @@ SuBLIME_prediction <- function(baseline_flair, follow_up_flair, baseline_pd,
     stopifnot(all.equal(dim(x)[1:3], img.dim))
   })  
   
-  if (verbose){
+  if (verbose & !is.null(baseline_nawm_mask) & !is.null(follow_up_nawm_mask)){
     cat("Intensity-Normalizing Images\n")
   }
   
@@ -231,14 +240,14 @@ if (voxsel){
     cat("Selecting certain voxels\n")
   }
   ##Create voxel selection mask##
-  voxel_select_mask <-voxel_select(
+  voxel_select_mask <- voxel_select(
     normalized_baseline_t2 = norm.imgs$normalized_baseline_t2,
     normalized_follow_up_t2 = norm.imgs$normalized_follow_up_t2,
-    brain_mask = brain_mask)
+    brain_mask = brain_mask, sigma=sigma, ksize = ksize)
   SuBLIME_predictions = SuBLIME_predictions *  voxel_select_mask
 }
 ##Apply voxel selection mask to SuBLIME predictions##
-SuBLIME_predictions_voxel_select <- SuBLIME_predictions *  voxel_select_mask
+SuBLIME_predictions_voxel_select <- SuBLIME_predictions
 
 if (verbose){
   cat("Smoothing voxel lesion probabilities\n")
@@ -246,14 +255,14 @@ if (verbose){
 ##Smooth predictions to incorportate spatial information##
 if (smooth.using == "GaussSmoothArray"){
   SuBLIME_predictions_voxel_select_smoothed <- GaussSmoothArray(SuBLIME_predictions_voxel_select,
-                                                                sigma=diag(3,3),
-                                                                ksize=3,
+                                                                sigma=sigma,
+                                                                ksize=ksize,
                                                                 mask=brain_mask)
 } else if (smooth.using == "FSL") {
   stop("Not implemented yet")
   
 } else if (smooth.using == "none"){
-  SuBLIME_predictions_voxel_select = SuBLIME_predictions_voxel_select_smoothed
+   SuBLIME_predictions_voxel_select_smoothed = SuBLIME_predictions_voxel_select
 } else {
   stop("Smoothing method not implemented")
 }

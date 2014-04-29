@@ -4,9 +4,10 @@
 \usage{
 SuBLIME_prediction(baseline_flair, follow_up_flair, baseline_pd, follow_up_pd,
   baseline_t2, follow_up_t2, baseline_t1, follow_up_t1, time_diff,
-  baseline_nawm_mask, follow_up_nawm_mask = baseline_nawm_mask, brain_mask,
-  model = SuBLIME_model, smooth.using = c("GaussSmoothArray", "none"),
-  verbose = TRUE)
+  baseline_nawm_mask = NULL, follow_up_nawm_mask = baseline_nawm_mask,
+  brain_mask, model = SuBLIME_model, voxsel = TRUE,
+  smooth.using = c("GaussSmoothArray", "none"), sigma = diag(3, 3),
+  ksize = 3, verbose = TRUE)
 }
 \arguments{
   \item{baseline_flair}{Baseline FLAIR image, either array
@@ -38,24 +39,40 @@ SuBLIME_prediction(baseline_flair, follow_up_flair, baseline_pd, follow_up_pd,
 
   \item{baseline_nawm_mask}{Baseline Normal Appearing white
   matter mask, either array or class nifti. Will be coerced
-  to logical usign baseline_nawm_mask $> 0$.}
+  to logical usign baseline_nawm_mask $> 0$.  If NULL, no
+  NAWM normalization is done (assumes data is already
+  normalized)}
 
   \item{follow_up_nawm_mask}{Followup Normal Appearing
   white matter mask, either array or class nifti. Will be
   coerced to logical usign follow_up_nawm_mask $> 0$.
-  Defaults to baseline_nawm_mask if not specified}
+  Defaults to baseline_nawm_mask if not specified. If NULL,
+  no NAWM normalization is done (assumes data is already
+  normalized)}
 
   \item{brain_mask}{Brain mask, either array or class
   nifti. Will be #' coerced to logical usign brain_mask $>
   0$.}
 
-  \item{model}{Model of class \code{\link{lm}}}
+  \item{model}{Model of class \code{\link{lm}} or set of
+  coefficients.}
 
-  \item{smooth.using}{Character vector to decide if using}
+  \item{voxsel}{Do Voxel Selection based on normalized T2
+  (logical)}
 
-  \item{verbose}{Print Diagnostic Messages
+  \item{smooth.using}{Character vector to decide if using
   \code{\link{GaussSmoothArray}} from AnalyzeFMRI or
   fslsmooth from fslr package}
+
+  \item{sigma}{Sigma passed to
+  \code{\link{GaussSmoothArray}} and
+  \code{\link{voxel_select}}}
+
+  \item{ksize}{Kernel size passed to
+  \code{\link{GaussSmoothArray}} and
+  \code{\link{voxel_select}}}
+
+  \item{verbose}{Print Diagnostic Messages}
 }
 \value{
 array
@@ -81,14 +98,15 @@ follow_up_nawm_mask =  readNIfTI(follow_up_nawm_file, reorient=FALSE)
 brain_file =  system.file("01/duramask.nii.gz", package="SuBLIME")
 brain_mask =  readNIfTI(brain_file, reorient=FALSE)
 
-names(base_imgs) = paste0("baseline_", c("flair", "pd", "t2", "t1"))
-names(f_imgs) = paste0("follow_up_", c("flair", "pd", "t2", "t1"))
-attach(base_imgs)
-attach(f_imgs)
+follow_up_nawm_mask = NULL
+baseline_nawm_mask = NULL
 smooth.using = "GaussSmoothArray"
 verbose = TRUE
 time_diff = 10
+voxsel = FALSE
 model = SuBLIME_model
+sigma = diag(3,3)
+ksize = 3
 
 outimg = SuBLIME_prediction(
 baseline_flair = base_imgs[["FLAIR"]],
@@ -102,8 +120,14 @@ follow_up_t1 = f_imgs[["VolumetricT1"]],
 time_diff = time_diff,
 baseline_nawm_mask = baseline_nawm_mask,
 brain_mask = brain_mask,
+voxsel = voxsel,
 model = model
 )
+
+names(base_imgs) = paste0("baseline_", c("flair", "pd", "t2", "t1"))
+names(f_imgs) = paste0("follow_up_", c("flair", "pd", "t2", "t1"))
+attach(base_imgs)
+attach(f_imgs)
 }
 }
 \seealso{
