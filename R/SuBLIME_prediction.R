@@ -21,13 +21,15 @@
 #' @param time_diff Difference in time (in days) between baseline and
 #' followup, numeric
 #' @param baseline_nawm_mask Baseline Normal Appearing white matter mask, either array or class nifti.  
-#' Will be coerced to logical usign baseline_nawm_mask $> 0$.
+#' Will be coerced to logical usign baseline_nawm_mask $> 0$.  If NULL, no NAWM normalization
+#' is done (assumes data is already normalized)
 #' @param follow_up_nawm_mask Followup Normal Appearing white matter mask, either array or class nifti.  
 #' Will be coerced to logical usign follow_up_nawm_mask $> 0$. Defaults to baseline_nawm_mask if 
-#' not specified
+#' not specified. If NULL, no NAWM normalization is done (assumes data is already normalized)
 #' @param brain_mask Brain mask, either array or class nifti.  
 #' Will be #' coerced to logical usign brain_mask $> 0$.
-#' @param model Model of class \code{\link{lm}}
+#' @param model Model of class \code{\link{lm}} or set of coefficients.
+#' @param voxsel Do Voxel Selection based on normalized T2 (logical)
 #' @param smooth.using Character vector to decide if using 
 #' @param verbose Print Diagnostic Messages
 #' \code{\link{GaussSmoothArray}} from AnalyzeFMRI or fslsmooth from
@@ -52,8 +54,19 @@
 #' follow_up_nawm_mask =  readNIfTI(follow_up_nawm_file, reorient=FALSE) 
 #' brain_file =  system.file("01/duramask.nii.gz", package="SuBLIME")
 #' brain_mask =  readNIfTI(brain_file, reorient=FALSE) 
-#' data(SuBLIME_model)
+#' 
+#' follow_up_nawm_mask = NULL
+#' baseline_nawm_mask = NULL
+#' names(base_imgs) = paste0("baseline_", c("flair", "pd", "t2", "t1"))
+#' names(f_imgs) = paste0("follow_up_", c("flair", "pd", "t2", "t1"))
+#' attach(base_imgs)
+#' attach(f_imgs)
+#' smooth.using = "GaussSmoothArray"
+#' verbose = TRUE
+#' time_diff = 10
+#' voxsel = FALSE
 #' model = SuBLIME_model
+#' 
 #' outimg = SuBLIME_prediction(
 #' baseline_flair = base_imgs[["FLAIR"]],
 #' follow_up_flair= f_imgs[["FLAIR"]],
@@ -63,7 +76,7 @@
 #' follow_up_t2 = f_imgs[["T2"]],
 #' baseline_t1 = base_imgs[["VolumetricT1"]],
 #' follow_up_t1 = f_imgs[["VolumetricT1"]],
-#' time_diff = 1,
+#' time_diff = time_diff,
 #' baseline_nawm_mask = baseline_nawm_mask,
 #' brain_mask = brain_mask,
 #' model = model
@@ -72,12 +85,14 @@
 
 SuBLIME_prediction <- function(baseline_flair, follow_up_flair, baseline_pd, 
                                follow_up_pd, baseline_t2, follow_up_t2, baseline_t1, 
-                               follow_up_t1, time_diff, baseline_nawm_mask, 
+                               follow_up_t1, time_diff, baseline_nawm_mask = NULL, 
                                follow_up_nawm_mask = baseline_nawm_mask, brain_mask, 
                                model = SuBLIME_model, 
+                               voxsel = TRUE,
                                smooth.using = c("GaussSmoothArray", "none"),
                                verbose = TRUE){
   
+  stopifnot(time_diff > 0)
   ##requires the package AnalyzeFMRI for volume smoothing##
   smooth.using = smooth.using[1]
   makec = function(arr){
@@ -85,12 +100,12 @@ SuBLIME_prediction <- function(baseline_flair, follow_up_flair, baseline_pd,
   }
   
   nm = baseline_nawm_mask[1]
-  if (!inherits(nm, "logical")){
+  if (!inherits(nm, "logical") & !is.null(baseline_nawm_mask)){
     baseline_nawm_mask = baseline_nawm_mask > 0
   }
   
   nm = follow_up_nawm_mask[1]
-  if (!inherits(nm, "logical")){
+  if (!inherits(nm, "logical") & !is.null(follow_up_nawm_mask)){
     follow_up_nawm_mask = follow_up_nawm_mask > 0
   }  
   
@@ -169,6 +184,10 @@ SuBLIME_prediction <- function(baseline_flair, follow_up_flair, baseline_pd,
     T1_diff = c(norm.imgs$normalized_follow_up_t1 - norm.imgs$normalized_baseline_t1),
     time_diff = c(time_diff))
   SuBLIME_data$"(Intercept)" = 1
+  SuBLIME_data$"FLAIR_diff:time_diff" = SuBLIME_data$time_diff * SuBLIME_data$FLAIR_diff
+  SuBLIME_data$"time_diff:PD_diff" = SuBLIME_data$time_diff * SuBLIME_data$PD_diff
+  SuBLIME_data$"time_diff:T2_diff" = SuBLIME_data$time_diff * SuBLIME_data$T2_diff
+  SuBLIME_data$"time_diff:T1_diff" = SuBLIME_data$time_diff * SuBLIME_data$T1_diff
   
   if (verbose){
     cat("Making Predictions\n")
@@ -184,6 +203,10 @@ SuBLIME_prediction <- function(baseline_flair, follow_up_flair, baseline_pd,
   } else if (inherits(model, "matrix")){
     rn = rownames(model)
     cn = colnames(SuBLIME_data)
+    sdiff = setdiff(rn, cn)
+    if (length(sdiff) > 0){
+      print(sdiff)
+    }
     stopifnot(all(rn %in% cn))
     SuBLIME_data = as.matrix(SuBLIME_data[, rn])
     preds = SuBLIME_data %*% model
@@ -191,6 +214,10 @@ SuBLIME_prediction <- function(baseline_flair, follow_up_flair, baseline_pd,
   } else if (inherits(model, "numeric")){
     rn = names(model)
     cn = colnames(SuBLIME_data)
+    sdiff = setdiff(rn, cn)
+    if (length(sdiff) > 0){
+      print(sdiff)
+    }
     stopifnot(all(rn %in% cn))
     SuBLIME_data = as.matrix(SuBLIME_data[, rn])
     preds = SuBLIME_data %*% t(t(model))
@@ -199,15 +226,17 @@ SuBLIME_prediction <- function(baseline_flair, follow_up_flair, baseline_pd,
 
 SuBLIME_predictions <- array(preds, dim = img.dim)
 
-if (verbose){
-  cat("Selecting certain voxels\n")
+if (voxsel){
+  if (verbose){
+    cat("Selecting certain voxels\n")
+  }
+  ##Create voxel selection mask##
+  voxel_select_mask <-voxel_select(
+    normalized_baseline_t2 = norm.imgs$normalized_baseline_t2,
+    normalized_follow_up_t2 = norm.imgs$normalized_follow_up_t2,
+    brain_mask = brain_mask)
+  SuBLIME_predictions = SuBLIME_predictions *  voxel_select_mask
 }
-##Create voxel selection mask##
-voxel_select_mask <-voxel_select(
-  normalized_baseline_t2 = norm.imgs$normalized_baseline_t2,
-  normalized_follow_up_t2 = norm.imgs$normalized_follow_up_t2,
-  brain_mask = brain_mask)
-
 ##Apply voxel selection mask to SuBLIME predictions##
 SuBLIME_predictions_voxel_select <- SuBLIME_predictions *  voxel_select_mask
 

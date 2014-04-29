@@ -80,10 +80,16 @@ follow_up_nawm_file =  system.file("01/FollowUp/nawm.nii.gz", package="SuBLIME")
 follow_up_nawm_mask =  readNIfTI(follow_up_nawm_file, reorient=FALSE)
 brain_file =  system.file("01/duramask.nii.gz", package="SuBLIME")
 brain_mask =  readNIfTI(brain_file, reorient=FALSE)
-# load(system.file("data/SuBLIME_model.rda", package="SuBLIME" ))
-model = c("(Intercept)" =-7.7420, FLAIR =0.7412, PD =0.4099, T2=-0.3226,
-     T1= 0.7807, FLAIR_diff =  0.1841, PD_diff= 0.5383,
-     T2_diff = 0.8546, T1_diff = -0.9016)
+
+names(base_imgs) = paste0("baseline_", c("flair", "pd", "t2", "t1"))
+names(f_imgs) = paste0("follow_up_", c("flair", "pd", "t2", "t1"))
+attach(base_imgs)
+attach(f_imgs)
+smooth.using = "GaussSmoothArray"
+verbose = TRUE
+time_diff = 10
+model = SuBLIME_model
+
 outimg = SuBLIME_prediction(
 baseline_flair = base_imgs[["FLAIR"]],
 follow_up_flair= f_imgs[["FLAIR"]],
@@ -93,7 +99,7 @@ baseline_t2 = base_imgs[["T2"]],
 follow_up_t2 = f_imgs[["T2"]],
 baseline_t1 = base_imgs[["VolumetricT1"]],
 follow_up_t1 = f_imgs[["VolumetricT1"]],
-time_diff = 1,
+time_diff = time_diff,
 baseline_nawm_mask = baseline_nawm_mask,
 brain_mask = brain_mask,
 model = model

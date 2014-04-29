@@ -4,15 +4,18 @@
 #' standard deviation by intensities of voxels in the mask.  In SuBLIME
 #' the mask is normal appearing white matter
 #' @param image 3D Array or object of class nifti
-#' @param mask Mask with same dimensions
+#' @param mask Mask with same dimensions.  If NULL, then original image is returned
 #' @export
 #' @keywords normalize
 #' @return Object of class nifti or array, depending on image input
 #' @examples \dontrun{
 #' ## put in ex here
 #'}
-normalize <- function(image, mask){
+normalize <- function(image, mask = NULL){
 	
+  if (is.null(mask)){
+    return(image)
+  }
   ### Check dimensions
   stopifnot(all.equal(dim(mask)[1:3], dim(image)[1:3]))
   

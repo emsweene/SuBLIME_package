@@ -2,12 +2,13 @@
 \alias{normalize}
 \title{Intensity-normalization by a image mask}
 \usage{
-normalize(image, mask)
+normalize(image, mask = NULL)
 }
 \arguments{
   \item{image}{3D Array or object of class nifti}
 
-  \item{mask}{Mask with same dimensions}
+  \item{mask}{Mask with same dimensions.  If NULL, then
+  original image is returned}
 }
 \value{
 Object of class nifti or array, depending on image input
