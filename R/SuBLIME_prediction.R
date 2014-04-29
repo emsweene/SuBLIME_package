@@ -33,10 +33,10 @@
 #' @param smooth.using Character vector to decide if using 
 #' \code{\link{GaussSmoothArray}} from AnalyzeFMRI or fslsmooth from
 #' fslr package
-#' @param sigma Sigma passed to  \code{\link{GaussSmoothArray}} and 
-#' \code{\link{voxel_select}}
-#' @param ksize Kernel size passed to \code{\link{GaussSmoothArray}} and
-#' \code{\link{voxel_select}} 
+#' @param voxsel.sigma Sigma passed to \code{\link{voxel_select}}
+#' @param voxsel.ksize Kernel size passed to \code{\link{voxel_select}} 
+#' @param s.sigma Sigma passed to  \code{\link{GaussSmoothArray}} 
+#' @param s.ksize Kernel size passed to \code{\link{GaussSmoothArray}} 
 #' @param verbose Print Diagnostic Messages
 #' @export
 #' @keywords Sublime_prediction
@@ -98,7 +98,8 @@ SuBLIME_prediction <- function(baseline_flair, follow_up_flair, baseline_pd,
                                model = SuBLIME_model, 
                                voxsel = TRUE,
                                smooth.using = c("GaussSmoothArray", "none"),
-                               sigma=diag(3,3), ksize = 3,
+                               voxsel.sigma = diag(3,3), voxsel.ksize = 5,
+                               s.sigma = diag(3,3), s.ksize = 3,
                                verbose = TRUE){
   
   stopifnot(time_diff > 0)
@@ -243,7 +244,7 @@ if (voxsel){
   voxel_select_mask <- voxel_select(
     normalized_baseline_t2 = norm.imgs$normalized_baseline_t2,
     normalized_follow_up_t2 = norm.imgs$normalized_follow_up_t2,
-    brain_mask = brain_mask, sigma=sigma, ksize = ksize)
+    brain_mask = brain_mask, sigma= voxsel.sigma, ksize = voxsel.ksize)
   SuBLIME_predictions = SuBLIME_predictions *  voxel_select_mask
 }
 ##Apply voxel selection mask to SuBLIME predictions##
@@ -254,10 +255,11 @@ if (verbose){
 }
 ##Smooth predictions to incorportate spatial information##
 if (smooth.using == "GaussSmoothArray"){
-  SuBLIME_predictions_voxel_select_smoothed <- GaussSmoothArray(SuBLIME_predictions_voxel_select,
-                                                                sigma=sigma,
-                                                                ksize=ksize,
-                                                                mask=brain_mask)
+  SuBLIME_predictions_voxel_select_smoothed <- GaussSmoothArray(
+    SuBLIME_predictions_voxel_select,
+    sigma=s.sigma,
+    ksize=s.ksize,
+    mask=brain_mask)
 } else if (smooth.using == "FSL") {
   stop("Not implemented yet")
   
