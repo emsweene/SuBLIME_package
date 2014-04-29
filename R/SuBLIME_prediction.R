@@ -1,5 +1,5 @@
 #' @title Gets predicted probabilities from SuBLIME
-#'
+#' 
 #' @description Takes in MRI images from followup and gets predictions
 #' (probabilities) of the enhancing of lesions
 #' @param baseline_flair Baseline FLAIR image, either array or class 
@@ -37,6 +37,9 @@
 #' @param voxsel.ksize Kernel size passed to \code{\link{voxel_select}} 
 #' @param s.sigma Sigma passed to  \code{\link{GaussSmoothArray}} 
 #' @param s.ksize Kernel size passed to \code{\link{GaussSmoothArray}} 
+#' @param plot.imgs Plot images along the way
+#' @param slice Slice to be plotted
+#' @param pdfname Name of pdf created for \code{plot.imgs}
 #' @param verbose Print Diagnostic Messages
 #' @export
 #' @keywords Sublime_prediction
@@ -58,16 +61,18 @@
 #' follow_up_nawm_mask =  readNIfTI(follow_up_nawm_file, reorient=FALSE) 
 #' brain_file =  system.file("01/duramask.nii.gz", package="SuBLIME")
 #' brain_mask =  readNIfTI(brain_file, reorient=FALSE) 
+#' brain_mask = drop(brain_mask)
 #' 
 #' follow_up_nawm_mask = NULL
 #' baseline_nawm_mask = NULL
 #' smooth.using = "GaussSmoothArray"
 #' verbose = TRUE
 #' time_diff = 10
-#' voxsel = FALSE
+#' voxsel = TRUE
 #' model = SuBLIME_model
-#' sigma = diag(3,3)
-#' ksize = 3
+#' #voxsel.sigma = s.sigma =diag(3,3)
+#' #s.ksize = 3
+#' #voxsel.ksize = 5
 #' 
 #' outimg = SuBLIME_prediction(
 #' baseline_flair = base_imgs[["FLAIR"]],
@@ -82,7 +87,8 @@
 #' baseline_nawm_mask = baseline_nawm_mask,
 #' brain_mask = brain_mask,
 #' voxsel = voxsel,
-#' model = model
+#' model = model, plot.imgs= TRUE,
+#' pdfname = "~/Dropbox/SuBLIME_Web_Test/01/pckg_diagnostc.pdf"
 #' )
 #'
 #' names(base_imgs) = paste0("baseline_", c("flair", "pd", "t2", "t1"))
@@ -100,7 +106,8 @@ SuBLIME_prediction <- function(baseline_flair, follow_up_flair, baseline_pd,
                                smooth.using = c("GaussSmoothArray", "none"),
                                voxsel.sigma = diag(3,3), voxsel.ksize = 5,
                                s.sigma = diag(3,3), s.ksize = 3,
-                               verbose = TRUE){
+                               plot.imgs = FALSE,
+                               slice = 90, pdfname="diag.pdf", verbose = TRUE){
   
   stopifnot(time_diff > 0)
   ##requires the package AnalyzeFMRI for volume smoothing##
@@ -182,16 +189,54 @@ SuBLIME_prediction <- function(baseline_flair, follow_up_flair, baseline_pd,
   if (verbose){
     cat("Creating Data Matrix\n")
   }
+  
+  
+  #### Difference images
+  FLAIR_diff = norm.imgs$normalized_follow_up_flair - norm.imgs$normalized_baseline_flair
+  PD_diff = norm.imgs$normalized_follow_up_pd - norm.imgs$normalized_baseline_pd
+  T2_diff = norm.imgs$normalized_follow_up_t2 - norm.imgs$normalized_baseline_t2
+  T1_diff = norm.imgs$normalized_follow_up_t1 - norm.imgs$normalized_baseline_t1
+  
+  
+  if (plot.imgs){
+    plotimage = function(img, name){
+      image(img, col = gray((0:32)/32), xaxt = 'n', yaxt = 'n' )
+      mtext(name, SOUTH<-1, line=-1.5, adj=.95, cex=1, col="white", outer=FALSE)
+    }   
+    pdf(pdfname)
+      par(mfrow = c(2,4))
+      par(mar=c(0, 0, 0, 0))
+      
+      plotimage(norm.imgs$normalized_baseline_flair[,,slice], "F.base")
+      plotimage(norm.imgs$normalized_baseline_pd[,,slice], "PD.base")
+      plotimage(norm.imgs$normalized_baseline_t2[,,slice], "T2.base")
+      plotimage(norm.imgs$normalized_baseline_t1[,,slice], "T1.base")
+      
+      plotimage(norm.imgs$normalized_follow_up_flair[,,slice], "F.followup")
+      plotimage(norm.imgs$normalized_follow_up_pd[,,slice], "PD.followup")
+      plotimage(norm.imgs$normalized_follow_up_t2[,,slice], "T2.followup")
+      plotimage(norm.imgs$normalized_follow_up_t1[,,slice], "T1.followup")
+      
+  
+      par(mfrow = c(2,2))
+      par(mar=c(0, 0, 0, 0))
+    
+      plotimage(FLAIR_diff[,,slice], "F.diff")
+      plotimage(PD_diff[,,slice], "PD.diff")
+      plotimage(T2_diff[,,slice], "T2.diff")
+      plotimage(T1_diff[,,slice], "T1.diff")
+  }
+  
   ##create dataframe with images for prediction##
   SuBLIME_data <- data.frame(
     FLAIR = c(norm.imgs$normalized_follow_up_flair),
     PD = c(norm.imgs$normalized_follow_up_pd),
     T2 = c(norm.imgs$normalized_follow_up_t2),
     T1 = c(norm.imgs$normalized_follow_up_t1),
-    FLAIR_diff = c(norm.imgs$normalized_follow_up_flair - norm.imgs$normalized_baseline_flair),
-    PD_diff = c(norm.imgs$normalized_follow_up_pd - norm.imgs$normalized_baseline_pd),
-    T2_diff = c(norm.imgs$normalized_follow_up_t2 - norm.imgs$normalized_baseline_t2),
-    T1_diff = c(norm.imgs$normalized_follow_up_t1 - norm.imgs$normalized_baseline_t1),
+    FLAIR_diff = c(FLAIR_diff),
+    PD_diff = c(PD_diff),
+    T2_diff = c(T2_diff),
+    T1_diff = c(T1_diff),
     time_diff = c(time_diff))
   SuBLIME_data$"(Intercept)" = 1
   SuBLIME_data$"FLAIR_diff:time_diff" = SuBLIME_data$time_diff * SuBLIME_data$FLAIR_diff
@@ -245,10 +290,23 @@ if (voxsel){
     normalized_baseline_t2 = norm.imgs$normalized_baseline_t2,
     normalized_follow_up_t2 = norm.imgs$normalized_follow_up_t2,
     brain_mask = brain_mask, sigma= voxsel.sigma, ksize = voxsel.ksize)
+  
+  if (plot.imgs){
+    ##View voxel selection mask 
+    par(mfrow = c(1,1))
+    image(voxel_select_mask[,,slice])
+  }
   SuBLIME_predictions = SuBLIME_predictions *  voxel_select_mask
 }
 ##Apply voxel selection mask to SuBLIME predictions##
 SuBLIME_predictions_voxel_select <- SuBLIME_predictions
+
+if (plot.imgs){
+  ##View the predictions##
+  par(mfrow = c(1,1))
+  image(SuBLIME_predictions_voxel_select[,,slice])
+}
+
 
 if (verbose){
   cat("Smoothing voxel lesion probabilities\n")
@@ -269,6 +327,13 @@ if (smooth.using == "GaussSmoothArray"){
   stop("Smoothing method not implemented")
 }
 
+if (plot.imgs){
+  ##View the smoothed predictions##
+  par(mfrow = c(1,1))
+  image(SuBLIME_predictions_voxel_select_smoothed[,,slice])
+}
+
+
 if (inherits(temp.img, "nifti")){
   temp.img@.Data = SuBLIME_predictions_voxel_select_smoothed
   cmax = max(temp.img, na.rm=TRUE) 
@@ -280,6 +345,10 @@ if (inherits(temp.img, "nifti")){
   temp.img@scl_slope = 1
   temp.img@scl_inter = 0  
   SuBLIME_predictions_voxel_select_smoothed = temp.img
+}
+
+if (plot.imgs){
+  dev.off()
 }
 
 ##Return SuBLIME predictions##`

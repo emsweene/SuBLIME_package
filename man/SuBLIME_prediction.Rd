@@ -6,8 +6,9 @@ SuBLIME_prediction(baseline_flair, follow_up_flair, baseline_pd, follow_up_pd,
   baseline_t2, follow_up_t2, baseline_t1, follow_up_t1, time_diff,
   baseline_nawm_mask = NULL, follow_up_nawm_mask = baseline_nawm_mask,
   brain_mask, model = SuBLIME_model, voxsel = TRUE,
-  smooth.using = c("GaussSmoothArray", "none"), sigma = diag(3, 3),
-  ksize = 3, verbose = TRUE)
+  smooth.using = c("GaussSmoothArray", "none"), voxsel.sigma = diag(3, 3),
+  voxsel.ksize = 5, s.sigma = diag(3, 3), s.ksize = 3,
+  plot.imgs = FALSE, slice = 90, pdfname = "diag.pdf", verbose = TRUE)
 }
 \arguments{
   \item{baseline_flair}{Baseline FLAIR image, either array
@@ -64,13 +65,23 @@ SuBLIME_prediction(baseline_flair, follow_up_flair, baseline_pd, follow_up_pd,
   \code{\link{GaussSmoothArray}} from AnalyzeFMRI or
   fslsmooth from fslr package}
 
-  \item{sigma}{Sigma passed to
-  \code{\link{GaussSmoothArray}} and
+  \item{voxsel.sigma}{Sigma passed to
   \code{\link{voxel_select}}}
 
-  \item{ksize}{Kernel size passed to
-  \code{\link{GaussSmoothArray}} and
+  \item{voxsel.ksize}{Kernel size passed to
   \code{\link{voxel_select}}}
+
+  \item{s.sigma}{Sigma passed to
+  \code{\link{GaussSmoothArray}}}
+
+  \item{s.ksize}{Kernel size passed to
+  \code{\link{GaussSmoothArray}}}
+
+  \item{plot.imgs}{Plot images along the way}
+
+  \item{slice}{Slice to be plotted}
+
+  \item{pdfname}{Name of pdf created for \code{plot.imgs}}
 
   \item{verbose}{Print Diagnostic Messages}
 }
@@ -97,16 +108,18 @@ follow_up_nawm_file =  system.file("01/FollowUp/nawm.nii.gz", package="SuBLIME")
 follow_up_nawm_mask =  readNIfTI(follow_up_nawm_file, reorient=FALSE)
 brain_file =  system.file("01/duramask.nii.gz", package="SuBLIME")
 brain_mask =  readNIfTI(brain_file, reorient=FALSE)
+brain_mask = drop(brain_mask)
 
 follow_up_nawm_mask = NULL
 baseline_nawm_mask = NULL
 smooth.using = "GaussSmoothArray"
 verbose = TRUE
 time_diff = 10
-voxsel = FALSE
+voxsel = TRUE
 model = SuBLIME_model
-sigma = diag(3,3)
-ksize = 3
+#voxsel.sigma = s.sigma =diag(3,3)
+#s.ksize = 3
+#voxsel.ksize = 5
 
 outimg = SuBLIME_prediction(
 baseline_flair = base_imgs[["FLAIR"]],
@@ -121,7 +134,8 @@ time_diff = time_diff,
 baseline_nawm_mask = baseline_nawm_mask,
 brain_mask = brain_mask,
 voxsel = voxsel,
-model = model
+model = model, plot.imgs= TRUE,
+pdfname = "~/Dropbox/SuBLIME_Web_Test/01/pckg_diagnostc.pdf"
 )
 
 names(base_imgs) = paste0("baseline_", c("flair", "pd", "t2", "t1"))

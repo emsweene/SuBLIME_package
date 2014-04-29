@@ -2,7 +2,8 @@
 \alias{voxel_select}
 \title{Select Potential Voxels}
 \usage{
-voxel_select(normalized_baseline_t2, normalized_follow_up_t2, brain_mask)
+voxel_select(normalized_baseline_t2, normalized_follow_up_t2, brain_mask,
+  sigma = diag(3, 3), ksize = 5)
 }
 \arguments{
   \item{normalized_baseline_t2}{Baseline T2 image, array or
@@ -13,6 +14,12 @@ voxel_select(normalized_baseline_t2, normalized_follow_up_t2, brain_mask)
 
   \item{brain_mask}{A 3D 0-1 mask that delimits where the
   smoothing occurs, passed to
+  \code{\link{GaussSmoothArray}}}
+
+  \item{sigma}{Sigma passed to
+  \code{\link{GaussSmoothArray}}}
+
+  \item{ksize}{Kernel size passed to
   \code{\link{GaussSmoothArray}}}
 }
 \value{
