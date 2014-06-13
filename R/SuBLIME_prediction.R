@@ -374,7 +374,6 @@ return(SuBLIME_predictions_voxel_select_smoothed)
 #' @title Download SuBLIME data
 #'
 #' @description Download test data for examples
-#' @param download_data
 #' @param folder Folder to download the data - usually SuBLIME folder,
 #' but may need a different directory due to permissions
 #' @param force Force download of file even if it exists
@@ -387,7 +386,7 @@ download_data = function(
   ){
 
   url = file.path("https://github.com/muschellij2/SuBLIME_package",
-                  "raw/master/01.zip")
+                  "raw/data/01.zip")
   destfile = file.path(folder, "01.zip")
   if (!file.exists(destfile) | force){
     download(url, destfile=destfile)

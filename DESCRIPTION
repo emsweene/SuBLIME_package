@@ -14,4 +14,5 @@ Depends:
     AnalyzeFMRI,
     oro.nifti
 Imports:
-    smallpdf
+    smallpdf,
+    downloader

@@ -6,8 +6,6 @@
 download_data(folder = system.file(package = "SuBLIME"), force = FALSE)
 }
 \arguments{
-\item{download_data}{}
-
 \item{folder}{Folder to download the data - usually SuBLIME folder,
 but may need a different directory due to permissions}
 
