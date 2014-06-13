@@ -391,9 +391,12 @@ download_data = function(
   if (!file.exists(destfile) | force){
     download(url, destfile=destfile)
   }
-  unzip(destfile)
-  suppressWarnings(file.remove(file.path(folder, "__MACOSX")))
-  file.exists(file.path(folder, "01/Baseline/nawm.nii.gz"))
+  check_file =file.path(folder, "01/Baseline/nawm.nii.gz")
+  if (!file.exists(check_file)){
+    unzip(destfile, exdir = folder)
+    suppressWarnings(file.remove(file.path(folder, "__MACOSX")))
+  } 
+  file.exists(check_file)  
 }
   
   
