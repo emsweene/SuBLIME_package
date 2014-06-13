@@ -47,6 +47,8 @@
 #' @keywords Sublime_prediction
 #' @seealso predict
 #' @return array
+#' @importFrom AnalyzeFMRI GaussSmoothArray
+#' @import oro.nifti
 #' @examples \dontrun{
 #' modes = c("FLAIR", "PD", "T2", "VolumetricT1")
 #' modals = paste0(modes, "norm.nii.gz")

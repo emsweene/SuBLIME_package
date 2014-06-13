@@ -3,4 +3,6 @@
 export(SuBLIME_prediction)
 export(normalize)
 export(voxel_select)
+import(oro.nifti)
 import(smallpdf)
+importFrom(AnalyzeFMRI,GaussSmoothArray)
