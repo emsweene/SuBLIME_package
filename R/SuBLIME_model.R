@@ -3,7 +3,6 @@
 #' @description Predictive model for SuBLIME algorithm
 #' @name SuBLIME_model
 #' @docType data
-#' @alias SuBLIME_model
 #' @usage SuBLIME_model
 #' @format An \code{lm} object, but with data an other things, notably 
 #' qr removed

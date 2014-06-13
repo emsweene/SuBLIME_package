@@ -12,8 +12,6 @@
 #' @keywords Voxel Selection
 #' @seealso GaussSmoothArray
 #' @return Array or object class nifti depending on imput iamges
-#' @alias
-
 voxel_select <- function(normalized_baseline_t2, normalized_follow_up_t2, brain_mask, 
                          sigma = diag(3, 3), ksize = 5){
   
