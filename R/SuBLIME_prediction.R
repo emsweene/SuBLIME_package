@@ -50,6 +50,7 @@
 #' @importFrom AnalyzeFMRI GaussSmoothArray
 #' @import oro.nifti
 #' @examples \dontrun{
+#' download_data()
 #' modes = c("FLAIR", "PD", "T2", "VolumetricT1")
 #' modals = paste0(modes, "norm.nii.gz")
 #' base_files = system.file(file.path("01/Baseline", modals), package="SuBLIME")
@@ -367,3 +368,33 @@ if (plot.imgs){
 ##Return SuBLIME predictions##`
 return(SuBLIME_predictions_voxel_select_smoothed)  
 }
+
+
+
+#' @title Download SuBLIME data
+#'
+#' @description Download test data for examples
+#' @param download_data
+#' @param folder Folder to download the data - usually SuBLIME folder,
+#' but may need a different directory due to permissions
+#' @param force Force download of file even if it exists
+#' @export
+#' @return Indicator if the file was downloaded and unzipped
+#' @import downloader
+download_data = function(
+  folder = system.file(package="SuBLIME"), 
+  force = FALSE
+  ){
+
+  url = file.path("https://github.com/muschellij2/SuBLIME_package",
+                  "raw/master/01.zip")
+  destfile = file.path(folder, "01.zip")
+  if (!file.exists(destfile) | force){
+    download(url, destfile=destfile)
+  }
+  unzip(destfile)
+  suppressWarnings(file.remove(file.path(folder, "__MACOSX")))
+  file.exists(file.path(folder, "01/Baseline/nawm.nii.gz"))
+}
+  
+  

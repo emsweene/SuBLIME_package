@@ -86,6 +86,7 @@ Takes in MRI images from followup and gets predictions
 }
 \examples{
 \dontrun{
+download_data()
 modes = c("FLAIR", "PD", "T2", "VolumetricT1")
 modals = paste0(modes, "norm.nii.gz")
 base_files = system.file(file.path("01/Baseline", modals), package="SuBLIME")
