@@ -244,7 +244,7 @@ if (voxsel){
   voxel_select_mask <- voxel_select(
     normalized_baseline_t2 = norm.imgs$normalized_baseline_t2,
     normalized_follow_up_t2 = norm.imgs$normalized_follow_up_t2,
-    brain_mask = brain_mask, sigma= voxsel.sigma, ksize = voxsel.ksize)
+    brain_mask = brain_mask)
   SuBLIME_predictions = SuBLIME_predictions *  voxel_select_mask
 }
 ##Apply voxel selection mask to SuBLIME predictions##
