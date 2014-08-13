@@ -1,0 +1,20 @@
+
+note <- sprintf("R package version %s", meta$Version)
+
+structure(list(structure(list(title = "Automatic lesion incidence estimation and detection in multiple sclerosis using multisequence longitudinal MRI", 
+    author = structure(list(structure(list(given = "EM", family = "Sweeney", 
+        role = NULL, email = NULL, comment = NULL), .Names = c("given", 
+    "family", "role", "email", "comment")), structure(list(given = "RT", 
+        family = "Shinohara", role = NULL, email = NULL, comment = NULL), .Names = c("given", 
+    "family", "role", "email", "comment")), structure(list(given = "CD", 
+        family = "Shea", role = NULL, email = NULL, comment = NULL), .Names = c("given", 
+    "family", "role", "email", "comment")), structure(list(given = "DS", 
+        family = "Reich", role = NULL, email = NULL, comment = NULL), .Names = c("given", 
+    "family", "role", "email", "comment")), structure(list(given = "CM", 
+        family = "Crainiceanu", role = NULL, email = NULL, comment = NULL), .Names = c("given", 
+    "family", "role", "email", "comment"))), class = "person"), 
+    journal = "American Journal of Neuroradiology", volume = "34", 
+    number = "1", pages = "68--73", year = "2013", publisher = "Am Soc Neuroradiology", 
+    note=note), .Names = c("title", 
+"author", "journal", "volume", "number", "pages", "year", "publisher", "note"
+), bibtype = "Article", key = "sweeney2013automatic")), class = "bibentry", strings = structure(character(0), .Names = character(0)))

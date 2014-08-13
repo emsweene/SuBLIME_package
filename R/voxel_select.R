@@ -6,13 +6,14 @@
 #' @param normalized_baseline_t2 Baseline T2 image, array or object class nifti that
 #' @param normalized_follow_up_t2 Followup T2 image, array or object class nifti that
 #' @param brain_mask A 3D 0-1 mask that delimits where the smoothing occurs, passed to \code{\link{GaussSmoothArray}}
+#' @param sigma Sigma passed to \code{\link{GaussSmoothArray}}
+#' @param ksize Kernel size passed to \code{\link{GaussSmoothArray}}
 #' @export
 #' @keywords Voxel Selection
 #' @seealso GaussSmoothArray
 #' @return Array or object class nifti depending on imput iamges
-#' @alias
-
-voxel_select <- function(normalized_baseline_t2, normalized_follow_up_t2, brain_mask){
+voxel_select <- function(normalized_baseline_t2, normalized_follow_up_t2, brain_mask, 
+                         sigma = diag(3, 3), ksize = 5){
   
   ##requires the package AnalyzeFMRI for volume smoothing##	
   
@@ -21,8 +22,8 @@ voxel_select <- function(normalized_baseline_t2, normalized_follow_up_t2, brain_
   
   ##smooth the t2 subtraction volume##
   smoothed_t2_diff<- GaussSmoothArray(t2_difference,
-    sigma=diag(3,3),
-    ksize=5, 
+    sigma= sigma,
+    ksize= ksize, 
     mask = brain_mask)
                                      
   ##threshold t2 subtraction volume to create voxel selection mask##                                   
