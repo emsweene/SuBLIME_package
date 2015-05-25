@@ -41,9 +41,7 @@
 #' @param slice Slice to be plotted
 #' @param pdfname Name of pdf created for \code{plot.imgs}
 #' @param verbose Print Diagnostic Messages
-#' @param pdfmaker Device to be used, either pdf or smallpdf
 #' @export
-#' @import smallpdf
 #' @keywords Sublime_prediction
 #' @seealso predict
 #' @return array
@@ -111,8 +109,7 @@ SuBLIME_prediction <- function(baseline_flair, follow_up_flair, baseline_pd,
                                voxsel.sigma = diag(3,3), voxsel.ksize = 5,
                                s.sigma = diag(3,3), s.ksize = 3,
                                plot.imgs = FALSE,
-                               slice = 90, pdfname="diag.pdf", verbose = TRUE, 
-                               pdfmaker = c("pdf", "smallpdf")){
+                               slice = 90, pdfname="diag.pdf", verbose = TRUE){
   
   stopifnot(time_diff > 0)
   ##requires the package AnalyzeFMRI for volume smoothing##
@@ -209,11 +206,7 @@ SuBLIME_prediction <- function(baseline_flair, follow_up_flair, baseline_pd,
       mtext(name, SOUTH<-1, line=-1.5, adj=.95, cex=1, col="white", outer=FALSE)
     }  
     pdfmaker = pdfmaker[1]
-    if (pdfmaker == "pdf") {
       pdf(pdfname)
-    } else if (pdfmaker == "smallpdf"){
-      mypdf = smallpdf()
-    }
       par(mfrow = c(2,4))
       par(mar=c(0, 0, 0, 0))
       
@@ -358,11 +351,7 @@ if (inherits(temp.img, "nifti")){
 }
 
 if (plot.imgs){
-  if (pdfmaker == "pdf") {
     dev.off()
-  } else if (pdfmaker == "smallpdf"){
-    smallpdf.off(pdfname, mypattern = mypdf$mypattern, dev = mypdf$dev)
-  }  
 }
 
 ##Return SuBLIME predictions##`
