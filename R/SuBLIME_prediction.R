@@ -98,12 +98,14 @@
 #' attach(base_imgs)
 #' attach(f_imgs)
 #'}
-
+#' @importFrom grDevices dev.off gray pdf
+#' @importFrom stats coef predict sd
+#' @importFrom graphics mtext par
 SuBLIME_prediction <- function(baseline_flair, follow_up_flair, baseline_pd, 
                                follow_up_pd, baseline_t2, follow_up_t2, baseline_t1, 
                                follow_up_t1, time_diff, baseline_nawm_mask = NULL, 
                                follow_up_nawm_mask = baseline_nawm_mask, brain_mask, 
-                               model = SuBLIME_model, 
+                               model = SuBLIME::SuBLIME_model, 
                                voxsel = TRUE,
                                smooth.using = c("GaussSmoothArray", "none"),
                                voxsel.sigma = diag(3,3), voxsel.ksize = 5,
@@ -292,7 +294,8 @@ if (voxsel){
   voxel_select_mask <- voxel_select(
     normalized_baseline_t2 = norm.imgs$normalized_baseline_t2,
     normalized_follow_up_t2 = norm.imgs$normalized_follow_up_t2,
-    brain_mask = brain_mask, sigma= voxsel.sigma, ksize = voxsel.ksize)
+    brain_mask = brain_mask, 
+    sigma= voxsel.sigma, ksize = voxsel.ksize)
   
   if (plot.imgs){
     ##View voxel selection mask 
@@ -370,6 +373,7 @@ return(SuBLIME_predictions_voxel_select_smoothed)
 #' @export
 #' @return Indicator if the file was downloaded and unzipped
 #' @import downloader
+#' @importFrom utils unzip
 download_data = function(
   folder = system.file(package="SuBLIME"), 
   force = FALSE

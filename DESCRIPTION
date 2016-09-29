@@ -1,17 +1,22 @@
 Package: SuBLIME
 Type: Package
-Title: SuBLIME: Automatic lesion incidence estimation and detection using
-    multi-modality longitudinal MRIs
-Version: 1.0
-Date: 2013-08-12
+Title: SuBLIME: Automatic Lesion Incidence Estimation and Detection using 
+    Multi-Modality Longitudinal MRIs
+Version: 1.2
+Date: 2016-09-29
 Author: Elizabeth M. Sweeney and John Muschelli
 Maintainer: John Muschelli <muschellij2@gmail.com>
 Description: Creates probability maps of incident and enlarging lesion voxels
-    from a baseline and followup MRI study in patiehts with MS.
+    from a baseline and followup 'MRI' study in patients with multiple
+    sclerosis.
 License: GPL
-LazyData: yes
+LazyData: true
 Depends:
     AnalyzeFMRI,
     oro.nifti
 Imports:
-    downloader
+    downloader,
+    graphics,
+    stats,
+    grDevices
+RoxygenNote: 5.0.1.9000
