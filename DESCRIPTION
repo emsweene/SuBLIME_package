@@ -2,7 +2,7 @@ Package: SuBLIME
 Type: Package
 Title: SuBLIME: Automatic Lesion Incidence Estimation and Detection using 
     Multi-Modality Longitudinal MRIs
-Version: 1.2
+Version: 1.2.2
 Date: 2016-09-29
 Author: Elizabeth M. Sweeney and John Muschelli
 Maintainer: John Muschelli <muschellij2@gmail.com>
