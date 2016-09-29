@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/muschellij2/SuBLIME.svg?branch=master)](https://travis-ci.org/muschellij2/SuBLIME)
+[![Build Status](https://travis-ci.org/muschellij2/SuBLIME_package.svg?branch=master)](https://travis-ci.org/muschellij2/SuBLIME_package)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/SuBLIME)](http://cran.rstudio.com/web/packages/SuBLIME/index.html)
 [![](http://cranlogs.r-pkg.org/badges/grand-total/SuBLIME)](http://cran.rstudio.com/web/packages/SuBLIME/index.html)
 
