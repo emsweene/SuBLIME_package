@@ -45,8 +45,6 @@
 #' @keywords Sublime_prediction
 #' @seealso predict
 #' @return array
-#' @importFrom AnalyzeFMRI GaussSmoothArray
-#' @import oro.nifti
 #' @examples \dontrun{
 #' download_data()
 #' modes = c("FLAIR", "PD", "T2", "VolumetricT1")
@@ -101,6 +99,8 @@
 #' @importFrom grDevices dev.off gray pdf
 #' @importFrom stats coef predict sd
 #' @importFrom graphics mtext par
+#' @importFrom AnalyzeFMRI GaussSmoothArray
+#' @import oro.nifti
 SuBLIME_prediction <- function(baseline_flair, follow_up_flair, baseline_pd, 
                                follow_up_pd, baseline_t2, follow_up_t2, baseline_t1, 
                                follow_up_t1, time_diff, baseline_nawm_mask = NULL, 
@@ -167,8 +167,9 @@ SuBLIME_prediction <- function(baseline_flair, follow_up_flair, baseline_pd,
     stopifnot(all.equal(dim(x)[1:3], img.dim))
   })  
   
-  if (verbose & !is.null(baseline_nawm_mask) & !is.null(follow_up_nawm_mask)){
-    cat("Intensity-Normalizing Images\n")
+  if (verbose & !is.null(baseline_nawm_mask) & 
+      !is.null(follow_up_nawm_mask)){
+    message("Intensity-Normalizing Images\n")
   }
   
   ##normalize all images and string them out##
@@ -191,7 +192,7 @@ SuBLIME_prediction <- function(baseline_flair, follow_up_flair, baseline_pd,
   #   rm(list=paste0("baseline_", modes))
   
   if (verbose){
-    cat("Creating Data Matrix\n")
+    message("Creating Data Matrix\n")
   }
   
   
@@ -204,7 +205,7 @@ SuBLIME_prediction <- function(baseline_flair, follow_up_flair, baseline_pd,
   
   if (plot.imgs){
     plotimage = function(img, name){
-      image(img, col = gray((0:32)/32), xaxt = 'n', yaxt = 'n' )
+      oro.nifti::image(img, col = gray((0:32)/32), xaxt = 'n', yaxt = 'n' )
       mtext(name, SOUTH<-1, line=-1.5, adj=.95, cex=1, col="white", outer=FALSE)
     }  
     pdfmaker = pdfmaker[1]
@@ -250,7 +251,7 @@ SuBLIME_prediction <- function(baseline_flair, follow_up_flair, baseline_pd,
   SuBLIME_data$"time_diff:T1_diff" = SuBLIME_data$time_diff * SuBLIME_data$T1_diff
   
   if (verbose){
-    cat("Making Predictions\n")
+    message("Making Predictions\n")
   }
   
   model = coef(model)
@@ -288,7 +289,7 @@ SuBLIME_predictions <- array(preds, dim = img.dim)
 
 if (voxsel){
   if (verbose){
-    cat("Selecting certain voxels\n")
+    message("Selecting certain voxels\n")
   }
   ##Create voxel selection mask##
   voxel_select_mask <- voxel_select(
@@ -316,11 +317,11 @@ if (plot.imgs){
 
 
 if (verbose){
-  cat("Smoothing voxel lesion probabilities\n")
+  message("Smoothing voxel lesion probabilities\n")
 }
 ##Smooth predictions to incorportate spatial information##
 if (smooth.using == "GaussSmoothArray"){
-  SuBLIME_predictions_voxel_select_smoothed <- GaussSmoothArray(
+  SuBLIME_predictions_voxel_select_smoothed <- AnalyzeFMRI::GaussSmoothArray(
     SuBLIME_predictions_voxel_select,
     sigma=s.sigma,
     ksize=s.ksize,
