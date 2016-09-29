@@ -17,7 +17,7 @@ License: \tab What license is it under?\cr
 
 }
 \author{
-Elizabeth Sweeney
+Elizabeth Sweeney, John Muschelli 
 
 Elizabeth M. Sweeney <emsweene@jhsph.edu>
 }

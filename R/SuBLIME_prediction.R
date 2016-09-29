@@ -299,6 +299,7 @@ if (voxsel){
     par(mfrow = c(1,1))
     image(voxel_select_mask[,,slice])
   }
+  
   SuBLIME_predictions = SuBLIME_predictions *  voxel_select_mask
 }
 ##Apply voxel selection mask to SuBLIME predictions##
