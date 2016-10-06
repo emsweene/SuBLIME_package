@@ -3,6 +3,20 @@
 language: R
 sudo: false
 cache: packages
-
-warnings_are_errors: true
 r_check_args: --as-cran
+
+before_script:
+  - "export DISPLAY=:99.0"
+  - "sh -e /etc/init.d/xvfb start"
+  - sleep 3
+
+bioc_required: yes
+use_bioc: yes
+r:
+- release
+- devel
+addons:
+  apt:
+    packages:
+    - tcl8.5-dev
+    - tk8.5-dev
