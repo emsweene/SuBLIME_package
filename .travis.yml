@@ -18,7 +18,7 @@ before_script:
   - fname=travis_helpers.sh
   - wget -O ${fname} http://bit.ly/travis_helpers
   - cat ${fname}; source ${fname}; rm ${fname}  
-  - start_xvfb() ;    
+  - start_xvfb ;    
   - sleep 3
   
 os: 
