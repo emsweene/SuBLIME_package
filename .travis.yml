@@ -30,8 +30,3 @@ use_bioc: yes
 r:
 - release
 - devel
-addons:
-  apt:
-    packages:
-    - tcl8.5-dev
-    - tk8.5-dev
