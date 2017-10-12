@@ -7,8 +7,19 @@ r_check_args: --as-cran
 
 before_script:
   - "export DISPLAY=:99.0"
-  - "sh -e /etc/init.d/xvfb start"
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; 
+    then 
+    ( Xvfb :99 -ac -screen 0 1024x768x8; echo ok )& ; 
+    fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; 
+    then 
+    sh -e /etc/init.d/xvfb start ;
+    fi 
   - sleep 3
+  
+os: 
+  - linux
+  - osx
 
 bioc_required: yes
 use_bioc: yes
