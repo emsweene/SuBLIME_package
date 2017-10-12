@@ -24,6 +24,7 @@ before_script:
 os: 
   - linux
   - osx
+osx_image: xcode9 
 
 bioc_required: yes
 use_bioc: yes
