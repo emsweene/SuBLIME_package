@@ -1,3 +1,0 @@
-load("/Users/johnmuschelli/Dropbox/Packages/SuBLIME_package/data/SuBLIME_model.rda")
-ls()
-SuBLIME_model
