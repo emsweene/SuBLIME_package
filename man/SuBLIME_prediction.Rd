@@ -49,13 +49,18 @@ nifti}
 \item{time_diff}{Difference in time (in days) between baseline and
 followup, numeric}
 
-\item{baseline_nawm_mask}{Baseline Normal Appearing white matter mask, either array or class nifti.
-Will be coerced to logical usign baseline_nawm_mask $> 0$.  If NULL, no NAWM normalization
+\item{baseline_nawm_mask}{Baseline Normal Appearing white matter mask, 
+either array or class nifti.  
+Will be coerced to logical usign baseline_nawm_mask $> 0$.  If NULL, 
+no NAWM normalization
 is done (assumes data is already normalized)}
 
-\item{follow_up_nawm_mask}{Followup Normal Appearing white matter mask, either array or class nifti.
-Will be coerced to logical usign follow_up_nawm_mask $> 0$. Defaults to baseline_nawm_mask if 
-not specified. If NULL, no NAWM normalization is done (assumes data is already normalized)}
+\item{follow_up_nawm_mask}{Followup Normal Appearing white matter mask, 
+either array or class nifti.  
+Will be coerced to logical usign follow_up_nawm_mask $> 0$. Defaults to 
+baseline_nawm_mask if 
+not specified. If NULL, no NAWM normalization is done (assumes data is 
+already normalized)}
 
 \item{brain_mask}{Brain mask, either array or class nifti.
 Will be #' coerced to logical usign brain_mask $> 0$.}
@@ -96,17 +101,20 @@ Takes in MRI images from followup and gets predictions
 download_data()
 modes = c("FLAIR", "PD", "T2", "VolumetricT1")
 modals = paste0(modes, "norm.nii.gz")
-base_files = system.file(file.path("01/Baseline", modals), package="sublime")
-base_imgs = lapply(base_files, readNIfTI, reorient=FALSE)
-f_files = system.file(file.path("01/FollowUp", modals), package="sublime")
+base_files = system.file("01", "Baseline", modals,
+package = "sublime")
+base_imgs = lapply(base_files, readNIfTI, reorient = FALSE)
+f_files = system.file("01", "FollowUp", modals, package="sublime")
 f_imgs = lapply(f_files, readNIfTI, reorient=FALSE) 
 names(base_imgs) = names(f_imgs) = modes
-baseline_nawm_file =  system.file("01/Baseline/nawm.nii.gz", package="sublime")
+baseline_nawm_file =  system.file("01", "Baseline", 
+"nawm.nii.gz", package="sublime")
 baseline_nawm_mask =  readNIfTI(baseline_nawm_file, reorient=FALSE)
 baseline_nawm_mask = drop(baseline_nawm_mask)
-follow_up_nawm_file =  system.file("01/FollowUp/nawm.nii.gz", package="sublime")
+follow_up_nawm_file =  system.file("01", "FollowUp", 
+"nawm.nii.gz", package="sublime")
 follow_up_nawm_mask =  readNIfTI(follow_up_nawm_file, reorient=FALSE) 
-brain_file =  system.file("01/duramask.nii.gz", package="sublime")
+brain_file =  system.file("01", "duramask.nii.gz", package="sublime")
 brain_mask =  readNIfTI(brain_file, reorient=FALSE) 
 brain_mask = drop(brain_mask)
 

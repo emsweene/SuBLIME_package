@@ -20,12 +20,17 @@
 #' nifti
 #' @param time_diff Difference in time (in days) between baseline and
 #' followup, numeric
-#' @param baseline_nawm_mask Baseline Normal Appearing white matter mask, either array or class nifti.  
-#' Will be coerced to logical usign baseline_nawm_mask $> 0$.  If NULL, no NAWM normalization
+#' @param baseline_nawm_mask Baseline Normal Appearing white matter mask, 
+#' either array or class nifti.  
+#' Will be coerced to logical usign baseline_nawm_mask $> 0$.  If NULL, 
+#' no NAWM normalization
 #' is done (assumes data is already normalized)
-#' @param follow_up_nawm_mask Followup Normal Appearing white matter mask, either array or class nifti.  
-#' Will be coerced to logical usign follow_up_nawm_mask $> 0$. Defaults to baseline_nawm_mask if 
-#' not specified. If NULL, no NAWM normalization is done (assumes data is already normalized)
+#' @param follow_up_nawm_mask Followup Normal Appearing white matter mask, 
+#' either array or class nifti.  
+#' Will be coerced to logical usign follow_up_nawm_mask $> 0$. Defaults to 
+#' baseline_nawm_mask if 
+#' not specified. If NULL, no NAWM normalization is done (assumes data is 
+#' already normalized)
 #' @param brain_mask Brain mask, either array or class nifti.  
 #' Will be #' coerced to logical usign brain_mask $> 0$.
 #' @param model Model of class \code{\link{lm}} or set of coefficients.
@@ -49,17 +54,20 @@
 #' download_data()
 #' modes = c("FLAIR", "PD", "T2", "VolumetricT1")
 #' modals = paste0(modes, "norm.nii.gz")
-#' base_files = system.file(file.path("01/Baseline", modals), package="sublime")
-#' base_imgs = lapply(base_files, readNIfTI, reorient=FALSE)
-#' f_files = system.file(file.path("01/FollowUp", modals), package="sublime")
+#' base_files = system.file("01", "Baseline", modals,
+#' package = "sublime")
+#' base_imgs = lapply(base_files, readNIfTI, reorient = FALSE)
+#' f_files = system.file("01", "FollowUp", modals, package="sublime")
 #' f_imgs = lapply(f_files, readNIfTI, reorient=FALSE) 
 #' names(base_imgs) = names(f_imgs) = modes
-#' baseline_nawm_file =  system.file("01/Baseline/nawm.nii.gz", package="sublime")
+#' baseline_nawm_file =  system.file("01", "Baseline", 
+#' "nawm.nii.gz", package="sublime")
 #' baseline_nawm_mask =  readNIfTI(baseline_nawm_file, reorient=FALSE)
 #' baseline_nawm_mask = drop(baseline_nawm_mask)
-#' follow_up_nawm_file =  system.file("01/FollowUp/nawm.nii.gz", package="sublime")
+#' follow_up_nawm_file =  system.file("01", "FollowUp", 
+#' "nawm.nii.gz", package="sublime")
 #' follow_up_nawm_mask =  readNIfTI(follow_up_nawm_file, reorient=FALSE) 
-#' brain_file =  system.file("01/duramask.nii.gz", package="sublime")
+#' brain_file =  system.file("01", "duramask.nii.gz", package="sublime")
 #' brain_mask =  readNIfTI(brain_file, reorient=FALSE) 
 #' brain_mask = drop(brain_mask)
 #' 
@@ -112,7 +120,7 @@ SuBLIME_prediction <- function(
   voxsel.sigma = diag(3,3), voxsel.ksize = 5,
   s.sigma = diag(3,3), s.ksize = 3,
   plot.imgs = FALSE,
-  slice = 90, pdfname="diag.pdf", verbose = TRUE){
+  slice = 90, pdfname = "diag.pdf", verbose = TRUE){
   
   stopifnot(time_diff > 0)
   ##requires the package AnalyzeFMRI for volume smoothing##
@@ -198,7 +206,8 @@ SuBLIME_prediction <- function(
   
   
   #### Difference images
-  FLAIR_diff = norm.imgs$normalized_follow_up_flair - norm.imgs$normalized_baseline_flair
+  FLAIR_diff = 
+    norm.imgs$normalized_follow_up_flair - norm.imgs$normalized_baseline_flair
   PD_diff = norm.imgs$normalized_follow_up_pd - norm.imgs$normalized_baseline_pd
   T2_diff = norm.imgs$normalized_follow_up_t2 - norm.imgs$normalized_baseline_t2
   T1_diff = norm.imgs$normalized_follow_up_t1 - norm.imgs$normalized_baseline_t1
@@ -209,7 +218,7 @@ SuBLIME_prediction <- function(
       oro.nifti::image(img, col = gray((0:32)/32), xaxt = 'n', yaxt = 'n' )
       mtext(name, SOUTH<-1, line=-1.5, adj=.95, cex=1, col="white", outer=FALSE)
     }  
-    pdfmaker = pdfmaker[1]
+    # pdfname = pdfname[1]
     pdf(pdfname)
     par(mfrow = c(2,4))
     par(mar=c(0, 0, 0, 0))
@@ -246,10 +255,14 @@ SuBLIME_prediction <- function(
     T1_diff = c(T1_diff),
     time_diff = c(time_diff))
   SuBLIME_data$"(Intercept)" = 1
-  SuBLIME_data$"FLAIR_diff:time_diff" = SuBLIME_data$time_diff * SuBLIME_data$FLAIR_diff
-  SuBLIME_data$"time_diff:PD_diff" = SuBLIME_data$time_diff * SuBLIME_data$PD_diff
-  SuBLIME_data$"time_diff:T2_diff" = SuBLIME_data$time_diff * SuBLIME_data$T2_diff
-  SuBLIME_data$"time_diff:T1_diff" = SuBLIME_data$time_diff * SuBLIME_data$T1_diff
+  SuBLIME_data$"FLAIR_diff:time_diff" = 
+    SuBLIME_data$time_diff * SuBLIME_data$FLAIR_diff
+  SuBLIME_data$"time_diff:PD_diff" = 
+    SuBLIME_data$time_diff * SuBLIME_data$PD_diff
+  SuBLIME_data$"time_diff:T2_diff" = 
+    SuBLIME_data$time_diff * SuBLIME_data$T2_diff
+  SuBLIME_data$"time_diff:T1_diff" = 
+    SuBLIME_data$time_diff * SuBLIME_data$T1_diff
   
   if (verbose){
     message("Making Predictions\n")
@@ -317,16 +330,18 @@ SuBLIME_prediction <- function(
   }
   
   
-  if (verbose){
+  if (verbose) {
     message("Smoothing voxel lesion probabilities\n")
   }
   ##Smooth predictions to incorportate spatial information##
-  if (smooth.using == "GaussSmoothArray"){
-    SuBLIME_predictions_voxel_select_smoothed <- AnalyzeFMRI::GaussSmoothArray(
-      SuBLIME_predictions_voxel_select,
-      sigma=s.sigma,
-      ksize=s.ksize,
-      mask=brain_mask)
+  if (smooth.using == "GaussSmoothArray") {
+    SuBLIME_predictions_voxel_select_smoothed <-
+      AnalyzeFMRI::GaussSmoothArray(
+        SuBLIME_predictions_voxel_select,
+        sigma = s.sigma,
+        ksize = s.ksize,
+        mask = brain_mask 
+      )
   } else if (smooth.using == "FSL") {
     stop("Not implemented yet")
     
