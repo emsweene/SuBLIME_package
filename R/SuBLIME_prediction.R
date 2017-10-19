@@ -49,17 +49,17 @@
 #' download_data()
 #' modes = c("FLAIR", "PD", "T2", "VolumetricT1")
 #' modals = paste0(modes, "norm.nii.gz")
-#' base_files = system.file(file.path("01/Baseline", modals), package="SuBLIME")
+#' base_files = system.file(file.path("01/Baseline", modals), package="sublime")
 #' base_imgs = lapply(base_files, readNIfTI, reorient=FALSE)
-#' f_files = system.file(file.path("01/FollowUp", modals), package="SuBLIME")
+#' f_files = system.file(file.path("01/FollowUp", modals), package="sublime")
 #' f_imgs = lapply(f_files, readNIfTI, reorient=FALSE) 
 #' names(base_imgs) = names(f_imgs) = modes
-#' baseline_nawm_file =  system.file("01/Baseline/nawm.nii.gz", package="SuBLIME")
+#' baseline_nawm_file =  system.file("01/Baseline/nawm.nii.gz", package="sublime")
 #' baseline_nawm_mask =  readNIfTI(baseline_nawm_file, reorient=FALSE)
 #' baseline_nawm_mask = drop(baseline_nawm_mask)
-#' follow_up_nawm_file =  system.file("01/FollowUp/nawm.nii.gz", package="SuBLIME")
+#' follow_up_nawm_file =  system.file("01/FollowUp/nawm.nii.gz", package="sublime")
 #' follow_up_nawm_mask =  readNIfTI(follow_up_nawm_file, reorient=FALSE) 
-#' brain_file =  system.file("01/duramask.nii.gz", package="SuBLIME")
+#' brain_file =  system.file("01/duramask.nii.gz", package="sublime")
 #' brain_mask =  readNIfTI(brain_file, reorient=FALSE) 
 #' brain_mask = drop(brain_mask)
 #' 
@@ -88,7 +88,7 @@
 #' brain_mask = brain_mask,
 #' voxsel = voxsel,
 #' model = model, plot.imgs= TRUE,
-#' pdfname = "~/Dropbox/SuBLIME_Web_Test/01/pckg_diagnostc.pdf"
+#' pdfname = file.path(tempdir(), "pckg_diagnostc.pdf")
 #' )
 #'
 #' names(base_imgs) = paste0("baseline_", c("flair", "pd", "t2", "t1"))
@@ -101,17 +101,18 @@
 #' @importFrom graphics mtext par
 #' @importFrom AnalyzeFMRI GaussSmoothArray
 #' @import oro.nifti
-SuBLIME_prediction <- function(baseline_flair, follow_up_flair, baseline_pd, 
-                               follow_up_pd, baseline_t2, follow_up_t2, baseline_t1, 
-                               follow_up_t1, time_diff, baseline_nawm_mask = NULL, 
-                               follow_up_nawm_mask = baseline_nawm_mask, brain_mask, 
-                               model = SuBLIME::SuBLIME_model, 
-                               voxsel = TRUE,
-                               smooth.using = c("GaussSmoothArray", "none"),
-                               voxsel.sigma = diag(3,3), voxsel.ksize = 5,
-                               s.sigma = diag(3,3), s.ksize = 3,
-                               plot.imgs = FALSE,
-                               slice = 90, pdfname="diag.pdf", verbose = TRUE){
+SuBLIME_prediction <- function(
+  baseline_flair, follow_up_flair, baseline_pd, 
+  follow_up_pd, baseline_t2, follow_up_t2, baseline_t1, 
+  follow_up_t1, time_diff, baseline_nawm_mask = NULL, 
+  follow_up_nawm_mask = baseline_nawm_mask, brain_mask, 
+  model = sublime::SuBLIME_model, 
+  voxsel = TRUE,
+  smooth.using = c("GaussSmoothArray", "none"),
+  voxsel.sigma = diag(3,3), voxsel.ksize = 5,
+  s.sigma = diag(3,3), s.ksize = 3,
+  plot.imgs = FALSE,
+  slice = 90, pdfname="diag.pdf", verbose = TRUE){
   
   stopifnot(time_diff > 0)
   ##requires the package AnalyzeFMRI for volume smoothing##
@@ -146,17 +147,17 @@ SuBLIME_prediction <- function(baseline_flair, follow_up_flair, baseline_pd,
   time_diff = array(time_diff, dim=img.dim)
   
   f.imgs = list(
-                follow_up_flair = follow_up_flair,
-                follow_up_pd = follow_up_pd, 
-                follow_up_t2 = follow_up_t2, 
-                follow_up_t1 = follow_up_t1
+    follow_up_flair = follow_up_flair,
+    follow_up_pd = follow_up_pd, 
+    follow_up_t2 = follow_up_t2, 
+    follow_up_t1 = follow_up_t1
   )
-
+  
   b.imgs = list(
-                baseline_flair = baseline_flair,
-                baseline_pd = baseline_pd, 
-                baseline_t2 = baseline_t2,  
-                baseline_t1 = baseline_t1
+    baseline_flair = baseline_flair,
+    baseline_pd = baseline_pd, 
+    baseline_t2 = baseline_t2,  
+    baseline_t1 = baseline_t1
   )
   
   #### check image dimensions
@@ -176,7 +177,7 @@ SuBLIME_prediction <- function(baseline_flair, follow_up_flair, baseline_pd,
   norm.b.imgs = lapply(b.imgs, function(image){
     x = normalize(image = image, mask = baseline_nawm_mask)
   })
-
+  
   norm.f.imgs = lapply(f.imgs, function(image){
     x = normalize(image = image, mask = follow_up_nawm_mask)
   })
@@ -209,28 +210,28 @@ SuBLIME_prediction <- function(baseline_flair, follow_up_flair, baseline_pd,
       mtext(name, SOUTH<-1, line=-1.5, adj=.95, cex=1, col="white", outer=FALSE)
     }  
     pdfmaker = pdfmaker[1]
-      pdf(pdfname)
-      par(mfrow = c(2,4))
-      par(mar=c(0, 0, 0, 0))
-      
-      plotimage(norm.imgs$normalized_baseline_flair[,,slice], "F.base")
-      plotimage(norm.imgs$normalized_baseline_pd[,,slice], "PD.base")
-      plotimage(norm.imgs$normalized_baseline_t2[,,slice], "T2.base")
-      plotimage(norm.imgs$normalized_baseline_t1[,,slice], "T1.base")
-      
-      plotimage(norm.imgs$normalized_follow_up_flair[,,slice], "F.followup")
-      plotimage(norm.imgs$normalized_follow_up_pd[,,slice], "PD.followup")
-      plotimage(norm.imgs$normalized_follow_up_t2[,,slice], "T2.followup")
-      plotimage(norm.imgs$normalized_follow_up_t1[,,slice], "T1.followup")
-      
-  
-      par(mfrow = c(2,2))
-      par(mar=c(0, 0, 0, 0))
+    pdf(pdfname)
+    par(mfrow = c(2,4))
+    par(mar=c(0, 0, 0, 0))
     
-      plotimage(FLAIR_diff[,,slice], "F.diff")
-      plotimage(PD_diff[,,slice], "PD.diff")
-      plotimage(T2_diff[,,slice], "T2.diff")
-      plotimage(T1_diff[,,slice], "T1.diff")
+    plotimage(norm.imgs$normalized_baseline_flair[,,slice], "F.base")
+    plotimage(norm.imgs$normalized_baseline_pd[,,slice], "PD.base")
+    plotimage(norm.imgs$normalized_baseline_t2[,,slice], "T2.base")
+    plotimage(norm.imgs$normalized_baseline_t1[,,slice], "T1.base")
+    
+    plotimage(norm.imgs$normalized_follow_up_flair[,,slice], "F.followup")
+    plotimage(norm.imgs$normalized_follow_up_pd[,,slice], "PD.followup")
+    plotimage(norm.imgs$normalized_follow_up_t2[,,slice], "T2.followup")
+    plotimage(norm.imgs$normalized_follow_up_t1[,,slice], "T1.followup")
+    
+    
+    par(mfrow = c(2,2))
+    par(mar=c(0, 0, 0, 0))
+    
+    plotimage(FLAIR_diff[,,slice], "F.diff")
+    plotimage(PD_diff[,,slice], "PD.diff")
+    plotimage(T2_diff[,,slice], "T2.diff")
+    plotimage(T1_diff[,,slice], "T1.diff")
   }
   
   ##create dataframe with images for prediction##
@@ -284,83 +285,83 @@ SuBLIME_prediction <- function(baseline_flair, follow_up_flair, baseline_pd,
     preds = SuBLIME_data %*% t(t(model))
     preds = 1/(1+exp(-preds)) 
   }
-
-SuBLIME_predictions <- array(preds, dim = img.dim)
-
-if (voxsel){
-  if (verbose){
-    message("Selecting certain voxels\n")
+  
+  SuBLIME_predictions <- array(preds, dim = img.dim)
+  
+  if (voxsel){
+    if (verbose){
+      message("Selecting certain voxels\n")
+    }
+    ##Create voxel selection mask##
+    voxel_select_mask <- voxel_select(
+      normalized_baseline_t2 = norm.imgs$normalized_baseline_t2,
+      normalized_follow_up_t2 = norm.imgs$normalized_follow_up_t2,
+      brain_mask = brain_mask, 
+      sigma= voxsel.sigma, ksize = voxsel.ksize)
+    
+    if (plot.imgs){
+      ##View voxel selection mask 
+      par(mfrow = c(1,1))
+      image(voxel_select_mask[,,slice])
+    }
+    
+    SuBLIME_predictions = SuBLIME_predictions *  voxel_select_mask
   }
-  ##Create voxel selection mask##
-  voxel_select_mask <- voxel_select(
-    normalized_baseline_t2 = norm.imgs$normalized_baseline_t2,
-    normalized_follow_up_t2 = norm.imgs$normalized_follow_up_t2,
-    brain_mask = brain_mask, 
-    sigma= voxsel.sigma, ksize = voxsel.ksize)
+  ##Apply voxel selection mask to SuBLIME predictions##
+  SuBLIME_predictions_voxel_select <- SuBLIME_predictions
   
   if (plot.imgs){
-    ##View voxel selection mask 
+    ##View the predictions##
     par(mfrow = c(1,1))
-    image(voxel_select_mask[,,slice])
+    image(SuBLIME_predictions_voxel_select[,,slice])
   }
   
-  SuBLIME_predictions = SuBLIME_predictions *  voxel_select_mask
-}
-##Apply voxel selection mask to SuBLIME predictions##
-SuBLIME_predictions_voxel_select <- SuBLIME_predictions
-
-if (plot.imgs){
-  ##View the predictions##
-  par(mfrow = c(1,1))
-  image(SuBLIME_predictions_voxel_select[,,slice])
-}
-
-
-if (verbose){
-  message("Smoothing voxel lesion probabilities\n")
-}
-##Smooth predictions to incorportate spatial information##
-if (smooth.using == "GaussSmoothArray"){
-  SuBLIME_predictions_voxel_select_smoothed <- AnalyzeFMRI::GaussSmoothArray(
-    SuBLIME_predictions_voxel_select,
-    sigma=s.sigma,
-    ksize=s.ksize,
-    mask=brain_mask)
-} else if (smooth.using == "FSL") {
-  stop("Not implemented yet")
   
-} else if (smooth.using == "none"){
-   SuBLIME_predictions_voxel_select_smoothed = SuBLIME_predictions_voxel_select
-} else {
-  stop("Smoothing method not implemented")
-}
-
-if (plot.imgs){
-  ##View the smoothed predictions##
-  par(mfrow = c(1,1))
-  image(SuBLIME_predictions_voxel_select_smoothed[,,slice])
-}
-
-
-if (inherits(temp.img, "nifti")){
-  temp.img@.Data = SuBLIME_predictions_voxel_select_smoothed
-  cmax = max(temp.img, na.rm=TRUE) 
-  cmax = ifelse(is.finite(cmax), cmax, 0)
-  cmin = min(temp.img, na.rm=TRUE) 
-  cmin = ifelse(is.finite(cmin), cmin, 0)  
-  temp.img@cal_max = cmax
-  temp.img@cal_min = cmin
-  temp.img@scl_slope = 1
-  temp.img@scl_inter = 0  
-  SuBLIME_predictions_voxel_select_smoothed = temp.img
-}
-
-if (plot.imgs){
+  if (verbose){
+    message("Smoothing voxel lesion probabilities\n")
+  }
+  ##Smooth predictions to incorportate spatial information##
+  if (smooth.using == "GaussSmoothArray"){
+    SuBLIME_predictions_voxel_select_smoothed <- AnalyzeFMRI::GaussSmoothArray(
+      SuBLIME_predictions_voxel_select,
+      sigma=s.sigma,
+      ksize=s.ksize,
+      mask=brain_mask)
+  } else if (smooth.using == "FSL") {
+    stop("Not implemented yet")
+    
+  } else if (smooth.using == "none"){
+    SuBLIME_predictions_voxel_select_smoothed = SuBLIME_predictions_voxel_select
+  } else {
+    stop("Smoothing method not implemented")
+  }
+  
+  if (plot.imgs){
+    ##View the smoothed predictions##
+    par(mfrow = c(1,1))
+    image(SuBLIME_predictions_voxel_select_smoothed[,,slice])
+  }
+  
+  
+  if (inherits(temp.img, "nifti")){
+    temp.img@.Data = SuBLIME_predictions_voxel_select_smoothed
+    cmax = max(temp.img, na.rm=TRUE) 
+    cmax = ifelse(is.finite(cmax), cmax, 0)
+    cmin = min(temp.img, na.rm=TRUE) 
+    cmin = ifelse(is.finite(cmin), cmin, 0)  
+    temp.img@cal_max = cmax
+    temp.img@cal_min = cmin
+    temp.img@scl_slope = 1
+    temp.img@scl_inter = 0  
+    SuBLIME_predictions_voxel_select_smoothed = temp.img
+  }
+  
+  if (plot.imgs){
     dev.off()
-}
-
-##Return SuBLIME predictions##`
-return(SuBLIME_predictions_voxel_select_smoothed)  
+  }
+  
+  ##Return SuBLIME predictions##`
+  return(SuBLIME_predictions_voxel_select_smoothed)  
 }
 
 
@@ -373,18 +374,18 @@ return(SuBLIME_predictions_voxel_select_smoothed)
 #' @param force Force download of file even if it exists
 #' @export
 #' @return Indicator if the file was downloaded and unzipped
-#' @import downloader
+#' @importFrom downloader download
 #' @importFrom utils unzip
 download_data = function(
-  folder = system.file(package="SuBLIME"), 
+  folder = system.file(package="sublime"), 
   force = FALSE
-  ){
-
-  url = file.path("https://github.com/muschellij2/SuBLIME_package",
+){
+  
+  url = file.path("https://github.com/muschellij2/SuBLIME",
                   "raw/data/01.zip")
   destfile = file.path(folder, "01.zip")
   if (!file.exists(destfile) | force){
-    download(url, destfile=destfile)
+    downloader::download(url, destfile = destfile)
   }
   check_file =file.path(folder, "01/Baseline/nawm.nii.gz")
   if (!file.exists(check_file)){
@@ -393,5 +394,8 @@ download_data = function(
   } 
   file.exists(check_file)  
 }
-  
-  
+
+#' @rdname SuBLIME_prediction
+#' @export
+sublime_prediction = SuBLIME_prediction
+

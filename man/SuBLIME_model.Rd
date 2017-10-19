@@ -3,7 +3,7 @@
 \docType{data}
 \name{SuBLIME_model}
 \alias{SuBLIME_model}
-\title{Sublime Predictive model}
+\title{SuBLIME Predictive model}
 \format{An \code{lm} object, but with data an other things, notably 
 qr removed}
 \usage{
@@ -16,4 +16,3 @@ Predictive model for SuBLIME algorithm
 Sweeney, E. M., et al. "Automatic lesion incidence estimation and detection in multiple sclerosis using multisequence longitudinal MRI." American Journal of Neuroradiology 34.1 (2013): 68-73.
 }
 \keyword{datasets}
-

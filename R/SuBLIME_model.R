@@ -1,4 +1,4 @@
-#' @title Sublime Predictive model
+#' @title SuBLIME Predictive model
 #'
 #' @description Predictive model for SuBLIME algorithm
 #' @usage SuBLIME_model
