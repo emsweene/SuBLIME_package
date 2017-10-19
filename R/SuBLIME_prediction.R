@@ -77,7 +77,7 @@
 #' verbose = TRUE
 #' time_diff = 10
 #' voxsel = TRUE
-#' model = SuBLIME_model
+#' model = sublime_model
 #' #voxsel.sigma = s.sigma =diag(3,3)
 #' #s.ksize = 3
 #' #voxsel.ksize = 5
@@ -114,7 +114,7 @@ SuBLIME_prediction <- function(
   follow_up_pd, baseline_t2, follow_up_t2, baseline_t1, 
   follow_up_t1, time_diff, baseline_nawm_mask = NULL, 
   follow_up_nawm_mask = baseline_nawm_mask, brain_mask, 
-  model = sublime::SuBLIME_model, 
+  model = sublime::sublime_model, 
   voxsel = TRUE,
   smooth.using = c("GaussSmoothArray", "none"),
   voxsel.sigma = diag(3,3), voxsel.ksize = 5,

@@ -2,7 +2,7 @@ Package: sublime
 Type: Package
 Title: Automatic Lesion Incidence Estimation and Detection using 
     Multi-Modality Longitudinal Magnetic Resonance Images
-Version: 1.4.1
+Version: 1.5.0
 Date: 2017-10-19
 Authors@R: c(person(given = "Elizabeth M.", "Sweeney",  
   email = "elizabethmargaretsweeney@gmail.com", role = c("aut", "cre")),
@@ -16,7 +16,8 @@ Description: Creates probability maps of incident and enlarging lesion voxels
 License: GPL
 LazyData: true
 Depends:
-    oro.nifti
+    oro.nifti,
+    R (>= 2.10)
 Imports:
     downloader,
     graphics,

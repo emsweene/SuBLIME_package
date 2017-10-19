@@ -8,7 +8,7 @@
 SuBLIME_prediction(baseline_flair, follow_up_flair, baseline_pd, follow_up_pd,
   baseline_t2, follow_up_t2, baseline_t1, follow_up_t1, time_diff,
   baseline_nawm_mask = NULL, follow_up_nawm_mask = baseline_nawm_mask,
-  brain_mask, model = sublime::SuBLIME_model, voxsel = TRUE,
+  brain_mask, model = sublime::sublime_model, voxsel = TRUE,
   smooth.using = c("GaussSmoothArray", "none"), voxsel.sigma = diag(3, 3),
   voxsel.ksize = 5, s.sigma = diag(3, 3), s.ksize = 3,
   plot.imgs = FALSE, slice = 90, pdfname = "diag.pdf", verbose = TRUE)
@@ -16,7 +16,7 @@ SuBLIME_prediction(baseline_flair, follow_up_flair, baseline_pd, follow_up_pd,
 sublime_prediction(baseline_flair, follow_up_flair, baseline_pd, follow_up_pd,
   baseline_t2, follow_up_t2, baseline_t1, follow_up_t1, time_diff,
   baseline_nawm_mask = NULL, follow_up_nawm_mask = baseline_nawm_mask,
-  brain_mask, model = sublime::SuBLIME_model, voxsel = TRUE,
+  brain_mask, model = sublime::sublime_model, voxsel = TRUE,
   smooth.using = c("GaussSmoothArray", "none"), voxsel.sigma = diag(3, 3),
   voxsel.ksize = 5, s.sigma = diag(3, 3), s.ksize = 3,
   plot.imgs = FALSE, slice = 90, pdfname = "diag.pdf", verbose = TRUE)
@@ -124,7 +124,7 @@ smooth.using = "GaussSmoothArray"
 verbose = TRUE
 time_diff = 10
 voxsel = TRUE
-model = SuBLIME_model
+model = sublime_model
 #voxsel.sigma = s.sigma =diag(3,3)
 #s.ksize = 3
 #voxsel.ksize = 5
