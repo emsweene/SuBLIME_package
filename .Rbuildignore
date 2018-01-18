@@ -3,4 +3,4 @@
 README\.md
 ^\.travis\.yml$
 data/.Rapp.history
-
+^refit_sublime\.R$
