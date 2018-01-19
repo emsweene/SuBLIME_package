@@ -5,3 +5,4 @@ README\.md
 data/.Rapp.history
 ^refit_sublime\.R$
 ^README\.Rmd$
+sublime_train_data\.rda$

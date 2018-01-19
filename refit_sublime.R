@@ -1,14 +1,27 @@
 rm(list=ls())
-setwd("/dcl01/smart/data/structural/msmri/SuBLIME_Data")
-load("SuBLIME_model.Rdata")
+if (FALSE) {
+  setwd("/dcl01/smart/data/structural/msmri/SuBLIME_Data")
+  load("SuBLIME_model.Rdata")
+  model = SuBLIME_model
+  
+  train_data = SuBLIME_model$data
+  train_data$GOLD_Radio = SuBLIME_model$y
+  
+  
+} else {
+  load("data/sublime_model.rda")
+  model = sublime_model
+  load("sublime_train_data.rda")
+}
 
-train_data = SuBLIME_model$data
-train_data$GOLD_Radio = SuBLIME_model$y
-nopd_sublime_model = update(
-	SuBLIME_model, 
-	formula = GOLD_Radio ~ FLAIR + T2 + T1 + 
-	FLAIR_diff * time_diff + T2_diff * time_diff + 
-	T1_diff * time_diff)
+mod_func = function(formula) {
+  update(
+    model, 
+    formula = GOLD_Radio ~ FLAIR + T2 + T1 + 
+      FLAIR_diff * time_diff + T2_diff * time_diff + 
+      T1_diff * time_diff
+  )
+}
 
 
 keep_mod = function(model){
@@ -27,8 +40,26 @@ keep_mod = function(model){
   model
 }
 
+nopd_sublime_model = mod_func(
+  formula = GOLD_Radio ~ FLAIR + T2 + T1 + 
+    FLAIR_diff * time_diff + T2_diff * time_diff + 
+    T1_diff * time_diff)
+
 nopd_sublime_model = keep_mod(nopd_sublime_model)
 save(nopd_sublime_model,
-	file = "nopd_sublime_model.rda",
-	compress = "xz",
-	compression_level = 9)
+     file = "nopd_sublime_model.rda",
+     compress = "xz",
+     compression_level = 9)
+
+flairt1_sublime_model = mod_func(
+  formula = GOLD_Radio ~ FLAIR + T1 + 
+    FLAIR_diff * time_diff +
+    T1_diff * time_diff)
+
+flairt1_sublime_model = keep_mod(flairt1_sublime_model)
+save(flairt1_sublime_model,
+     file = "flairt1_sublime_model.rda",
+     compress = "xz",
+     compression_level = 9)
+
+

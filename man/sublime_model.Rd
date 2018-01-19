@@ -4,7 +4,7 @@
 \name{sublime_model}
 \alias{sublime_model}
 \title{SuBLIME Predictive model}
-\format{An \code{lm} object, but with data an other things, notably 
+\format{An \code{glm} object, but with data an other things, notably 
 qr removed}
 \usage{
 sublime_model
