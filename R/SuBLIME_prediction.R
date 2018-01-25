@@ -110,8 +110,8 @@
 #' @importFrom AnalyzeFMRI GaussSmoothArray
 #' @import oro.nifti
 SuBLIME_prediction <- function(
-  baseline_flair, follow_up_flair, baseline_pd, 
-  follow_up_pd, baseline_t2, follow_up_t2, baseline_t1, 
+  baseline_flair, follow_up_flair, baseline_pd = NULL, 
+  follow_up_pd = NULL, baseline_t2, follow_up_t2, baseline_t1, 
   follow_up_t1, time_diff, baseline_nawm_mask = NULL, 
   follow_up_nawm_mask = baseline_nawm_mask, brain_mask, 
   model = sublime::sublime_model, 
@@ -156,17 +156,18 @@ SuBLIME_prediction <- function(
   
   f.imgs = list(
     follow_up_flair = follow_up_flair,
-    follow_up_pd = follow_up_pd, 
     follow_up_t2 = follow_up_t2, 
     follow_up_t1 = follow_up_t1
   )
+  f.imgs$follow_up_pd = follow_up_pd
+
   
   b.imgs = list(
     baseline_flair = baseline_flair,
-    baseline_pd = baseline_pd, 
     baseline_t2 = baseline_t2,  
     baseline_t1 = baseline_t1
   )
+  b.imgs$baseline_pd = baseline_pd
   
   #### check image dimensions
   sapply(f.imgs, function(x){
@@ -206,15 +207,33 @@ SuBLIME_prediction <- function(
   
   
   #### Difference images
-  FLAIR_diff = 
-    norm.imgs$normalized_follow_up_flair - norm.imgs$normalized_baseline_flair
-  PD_diff = norm.imgs$normalized_follow_up_pd - norm.imgs$normalized_baseline_pd
-  T2_diff = norm.imgs$normalized_follow_up_t2 - norm.imgs$normalized_baseline_t2
-  T1_diff = norm.imgs$normalized_follow_up_t1 - norm.imgs$normalized_baseline_t1
+  norm_diff = function(x1, x2) {
+    if (is.null(x1) || is.null(x2)) {
+      return(NULL)
+    }
+    x1 - x2
+  }
+  FLAIR_diff = norm_diff(norm.imgs$normalized_follow_up_flair,
+                         norm.imgs$normalized_baseline_flair)
+  PD_diff = norm_diff(norm.imgs$normalized_follow_up_pd, 
+                      norm.imgs$normalized_baseline_pd)
+  T2_diff = norm_diff(norm.imgs$normalized_follow_up_t2,
+                      norm.imgs$normalized_baseline_t2)
+  T1_diff = norm_diff(norm.imgs$normalized_follow_up_t1,
+                      norm.imgs$normalized_baseline_t1)
   
+  # FLAIR_diff = 
+  #   norm.imgs$normalized_follow_up_flair - norm.imgs$normalized_baseline_flair
+  # PD_diff = norm.imgs$normalized_follow_up_pd - norm.imgs$normalized_baseline_pd
+  # T2_diff = norm.imgs$normalized_follow_up_t2 - norm.imgs$normalized_baseline_t2
+  # T1_diff = norm.imgs$normalized_follow_up_t1 - norm.imgs$normalized_baseline_t1
+  # 
   
   if (plot.imgs){
     plotimage = function(img, name){
+      if (is.null(img)) {
+        return(invisible(NULL))
+      }
       oro.nifti::image(img, col = gray((0:32)/32), xaxt = 'n', yaxt = 'n' )
       mtext(name, SOUTH<-1, line=-1.5, adj=.95, cex=1, col="white", outer=FALSE)
     }  
@@ -246,14 +265,17 @@ SuBLIME_prediction <- function(
   ##create dataframe with images for prediction##
   SuBLIME_data <- data.frame(
     FLAIR = c(norm.imgs$normalized_follow_up_flair),
-    PD = c(norm.imgs$normalized_follow_up_pd),
-    T2 = c(norm.imgs$normalized_follow_up_t2),
-    T1 = c(norm.imgs$normalized_follow_up_t1),
     FLAIR_diff = c(FLAIR_diff),
-    PD_diff = c(PD_diff),
-    T2_diff = c(T2_diff),
-    T1_diff = c(T1_diff),
     time_diff = c(time_diff))
+  
+  SuBLIME_data$PD = c(norm.imgs$normalized_follow_up_pd)
+  SuBLIME_data$PD_diff = c(PD_diff)
+  SuBLIME_data$T2 = c(norm.imgs$normalized_follow_up_t2)
+  SuBLIME_data$T1 = c(norm.imgs$normalized_follow_up_t1)
+  
+  SuBLIME_data$T2_diff = c(T2_diff)
+  SuBLIME_data$T1_diff = c(T1_diff)
+  
   SuBLIME_data$"(Intercept)" = 1
   SuBLIME_data$"FLAIR_diff:time_diff" = 
     SuBLIME_data$time_diff * SuBLIME_data$FLAIR_diff
@@ -274,7 +296,7 @@ SuBLIME_prediction <- function(
     preds =   predict(
       object = model, 
       newdata = SuBLIME_data, 
-      type= "response", interval="none", se=FALSE)
+      type = "response", interval="none", se=FALSE)
   } else if (inherits(model, "matrix")){
     rn = rownames(model)
     cn = colnames(SuBLIME_data)
@@ -285,7 +307,7 @@ SuBLIME_prediction <- function(
     stopifnot(all(rn %in% cn))
     SuBLIME_data = as.matrix(SuBLIME_data[, rn])
     preds = SuBLIME_data %*% model
-    preds = 1/(1+exp(-preds))
+    preds = 1/(1 + exp(-preds))
   } else if (inherits(model, "numeric")){
     rn = names(model)
     cn = colnames(SuBLIME_data)
@@ -310,7 +332,7 @@ SuBLIME_prediction <- function(
       normalized_baseline_t2 = norm.imgs$normalized_baseline_t2,
       normalized_follow_up_t2 = norm.imgs$normalized_follow_up_t2,
       brain_mask = brain_mask, 
-      sigma= voxsel.sigma, ksize = voxsel.ksize)
+      sigma = voxsel.sigma, ksize = voxsel.ksize)
     
     if (plot.imgs){
       ##View voxel selection mask 
