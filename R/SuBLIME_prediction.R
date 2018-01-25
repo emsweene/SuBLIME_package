@@ -70,9 +70,11 @@
 #' brain_file =  system.file("01", "duramask.nii.gz", package="sublime")
 #' brain_mask =  readNIfTI(brain_file, reorient=FALSE) 
 #' brain_mask = drop(brain_mask)
-#' 
+#' on_cran = !identical(Sys.getenv("NOT_CRAN"), "true")
+#' if (on_cran) {
 #' follow_up_nawm_mask = NULL
 #' baseline_nawm_mask = NULL
+#' }
 #' smooth.using = "GaussSmoothArray"
 #' verbose = TRUE
 #' time_diff = 10
@@ -98,7 +100,24 @@
 #' model = model, plot.imgs= TRUE,
 #' pdfname = file.path(tempdir(), "pckg_diagnostc.pdf")
 #' )
-#'
+#'  
+#'  
+#' nopd_outimg = SuBLIME_prediction(
+#'  baseline_flair = base_imgs[["FLAIR"]],
+#' follow_up_flair= f_imgs[["FLAIR"]],
+#' baseline_pd = NULL,
+#' follow_up_pd = NULL,
+#' baseline_t2 = base_imgs[["T2"]],
+#' follow_up_t2 = f_imgs[["T2"]],
+#' baseline_t1 = base_imgs[["VolumetricT1"]],
+#' follow_up_t1 = f_imgs[["VolumetricT1"]],
+#' time_diff = time_diff,
+#' baseline_nawm_mask = baseline_nawm_mask,
+#' brain_mask = brain_mask,
+#' voxsel = TRUE,
+#' model = sublime::nopd_sublime_model, plot.imgs= TRUE,
+#' pdfname = file.path(tempdir(), "pckg_diagnostc.pdf")
+#' )  
 #' names(base_imgs) = paste0("baseline_", c("flair", "pd", "t2", "t1"))
 #' names(f_imgs) = paste0("follow_up_", c("flair", "pd", "t2", "t1"))
 #' attach(base_imgs)
@@ -155,11 +174,11 @@ SuBLIME_prediction <- function(
   time_diff = array(time_diff, dim=img.dim)
   
   f.imgs = list(
-    follow_up_flair = follow_up_flair,
-    follow_up_t2 = follow_up_t2, 
-    follow_up_t1 = follow_up_t1
+    follow_up_flair = follow_up_flair
   )
   f.imgs$follow_up_pd = follow_up_pd
+  f.imgs$follow_up_t2 = follow_up_t2
+  f.imgs$follow_up_t1 = follow_up_t1
 
   
   b.imgs = list(
@@ -168,6 +187,20 @@ SuBLIME_prediction <- function(
     baseline_t1 = baseline_t1
   )
   b.imgs$baseline_pd = baseline_pd
+  b.imgs$baseline_t2 = baseline_t2
+  b.imgs$baseline_t1 = baseline_t1
+
+  
+  f_modes = sub("follow_up", "", names(f.imgs))
+  b_modes = sub("baseline", "", names(b.imgs))
+  sd = c(setdiff(f_modes, b_modes), setdiff(b_modes, f_modes))
+  if (length(sd) > 0) {
+    stop(paste0("We have one imaging modality in baseline or ", 
+                "followup but not the respective", "followup/base",
+                "data.  Must make sure specifying both or both = NULL"))
+  }
+  
+  
   
   #### check image dimensions
   sapply(f.imgs, function(x){
@@ -197,7 +230,7 @@ SuBLIME_prediction <- function(
   rm(list=c("norm.b.imgs", "norm.f.imgs"))
   
   names(norm.imgs) = paste0('normalized_', names(norm.imgs))
-  modes = c("flair", "pd", "t2", "t1")
+  # modes = c("flair", "pd", "t2", "t1")
   ### cleanup
   #   rm(list=paste0("baseline_", modes))
   
@@ -239,7 +272,7 @@ SuBLIME_prediction <- function(
     }  
     # pdfname = pdfname[1]
     pdf(pdfname)
-    par(mfrow = c(2,4))
+    par(mfrow = c(2,length(b_modes)))
     par(mar=c(0, 0, 0, 0))
     
     plotimage(norm.imgs$normalized_baseline_flair[,,slice], "F.base")
@@ -276,15 +309,21 @@ SuBLIME_prediction <- function(
   SuBLIME_data$T2_diff = c(T2_diff)
   SuBLIME_data$T1_diff = c(T1_diff)
   
+  mult_null = function(x1, x2) {
+    if (is.null(x1) || is.null(x2)) {
+      return(NULL)
+    }
+    x1 * x2
+  }
   SuBLIME_data$"(Intercept)" = 1
   SuBLIME_data$"FLAIR_diff:time_diff" = 
-    SuBLIME_data$time_diff * SuBLIME_data$FLAIR_diff
+    mult_null(SuBLIME_data$time_diff, SuBLIME_data$FLAIR_diff)
   SuBLIME_data$"time_diff:PD_diff" = 
-    SuBLIME_data$time_diff * SuBLIME_data$PD_diff
+    mult_null(SuBLIME_data$time_diff, SuBLIME_data$PD_diff)
   SuBLIME_data$"time_diff:T2_diff" = 
-    SuBLIME_data$time_diff * SuBLIME_data$T2_diff
+    mult_null(SuBLIME_data$time_diff, SuBLIME_data$T2_diff)
   SuBLIME_data$"time_diff:T1_diff" = 
-    SuBLIME_data$time_diff * SuBLIME_data$T1_diff
+    mult_null(SuBLIME_data$time_diff, SuBLIME_data$T1_diff)
   
   if (verbose){
     message("Making Predictions\n")

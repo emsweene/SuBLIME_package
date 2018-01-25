@@ -119,9 +119,11 @@ follow_up_nawm_mask =  readNIfTI(follow_up_nawm_file, reorient=FALSE)
 brain_file =  system.file("01", "duramask.nii.gz", package="sublime")
 brain_mask =  readNIfTI(brain_file, reorient=FALSE) 
 brain_mask = drop(brain_mask)
-
+on_cran = !identical(Sys.getenv("NOT_CRAN"), "true")
+if (on_cran) {
 follow_up_nawm_mask = NULL
 baseline_nawm_mask = NULL
+}
 smooth.using = "GaussSmoothArray"
 verbose = TRUE
 time_diff = 10
@@ -147,7 +149,24 @@ voxsel = voxsel,
 model = model, plot.imgs= TRUE,
 pdfname = file.path(tempdir(), "pckg_diagnostc.pdf")
 )
-
+ 
+ 
+nopd_outimg = SuBLIME_prediction(
+ baseline_flair = base_imgs[["FLAIR"]],
+follow_up_flair= f_imgs[["FLAIR"]],
+baseline_pd = NULL,
+follow_up_pd = NULL,
+baseline_t2 = base_imgs[["T2"]],
+follow_up_t2 = f_imgs[["T2"]],
+baseline_t1 = base_imgs[["VolumetricT1"]],
+follow_up_t1 = f_imgs[["VolumetricT1"]],
+time_diff = time_diff,
+baseline_nawm_mask = baseline_nawm_mask,
+brain_mask = brain_mask,
+voxsel = TRUE,
+model = sublime::nopd_sublime_model, plot.imgs= TRUE,
+pdfname = file.path(tempdir(), "pckg_diagnostc.pdf")
+)  
 names(base_imgs) = paste0("baseline_", c("flair", "pd", "t2", "t1"))
 names(f_imgs) = paste0("follow_up_", c("flair", "pd", "t2", "t1"))
 attach(base_imgs)
