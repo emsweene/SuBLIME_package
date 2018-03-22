@@ -2,3 +2,4 @@
 .Rhistory
 .RData
 *.nii.gz
+data/.Rapp.history

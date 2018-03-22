@@ -2,12 +2,23 @@
 % Please edit documentation in R/SuBLIME_prediction.R
 \name{SuBLIME_prediction}
 \alias{SuBLIME_prediction}
+\alias{sublime_prediction}
 \title{Gets predicted probabilities from SuBLIME}
 \usage{
-SuBLIME_prediction(baseline_flair, follow_up_flair, baseline_pd, follow_up_pd,
-  baseline_t2, follow_up_t2, baseline_t1, follow_up_t1, time_diff,
-  baseline_nawm_mask = NULL, follow_up_nawm_mask = baseline_nawm_mask,
-  brain_mask, model = SuBLIME::SuBLIME_model, voxsel = TRUE,
+SuBLIME_prediction(baseline_flair, follow_up_flair, baseline_pd = NULL,
+  follow_up_pd = NULL, baseline_t2, follow_up_t2, baseline_t1, follow_up_t1,
+  time_diff, baseline_nawm_mask = NULL,
+  follow_up_nawm_mask = baseline_nawm_mask, brain_mask,
+  model = sublime::sublime_model, voxsel = TRUE,
+  smooth.using = c("GaussSmoothArray", "none"), voxsel.sigma = diag(3, 3),
+  voxsel.ksize = 5, s.sigma = diag(3, 3), s.ksize = 3,
+  plot.imgs = FALSE, slice = 90, pdfname = "diag.pdf", verbose = TRUE)
+
+sublime_prediction(baseline_flair, follow_up_flair, baseline_pd = NULL,
+  follow_up_pd = NULL, baseline_t2, follow_up_t2, baseline_t1, follow_up_t1,
+  time_diff, baseline_nawm_mask = NULL,
+  follow_up_nawm_mask = baseline_nawm_mask, brain_mask,
+  model = sublime::sublime_model, voxsel = TRUE,
   smooth.using = c("GaussSmoothArray", "none"), voxsel.sigma = diag(3, 3),
   voxsel.ksize = 5, s.sigma = diag(3, 3), s.ksize = 3,
   plot.imgs = FALSE, slice = 90, pdfname = "diag.pdf", verbose = TRUE)
@@ -40,13 +51,18 @@ nifti}
 \item{time_diff}{Difference in time (in days) between baseline and
 followup, numeric}
 
-\item{baseline_nawm_mask}{Baseline Normal Appearing white matter mask, either array or class nifti.
-Will be coerced to logical usign baseline_nawm_mask $> 0$.  If NULL, no NAWM normalization
+\item{baseline_nawm_mask}{Baseline Normal Appearing white matter mask, 
+either array or class nifti.  
+Will be coerced to logical usign baseline_nawm_mask $> 0$.  If NULL, 
+no NAWM normalization
 is done (assumes data is already normalized)}
 
-\item{follow_up_nawm_mask}{Followup Normal Appearing white matter mask, either array or class nifti.
-Will be coerced to logical usign follow_up_nawm_mask $> 0$. Defaults to baseline_nawm_mask if 
-not specified. If NULL, no NAWM normalization is done (assumes data is already normalized)}
+\item{follow_up_nawm_mask}{Followup Normal Appearing white matter mask, 
+either array or class nifti.  
+Will be coerced to logical usign follow_up_nawm_mask $> 0$. Defaults to 
+baseline_nawm_mask if 
+not specified. If NULL, no NAWM normalization is done (assumes data is 
+already normalized)}
 
 \item{brain_mask}{Brain mask, either array or class nifti.
 Will be #' coerced to logical usign brain_mask $> 0$.}
@@ -87,27 +103,32 @@ Takes in MRI images from followup and gets predictions
 download_data()
 modes = c("FLAIR", "PD", "T2", "VolumetricT1")
 modals = paste0(modes, "norm.nii.gz")
-base_files = system.file(file.path("01/Baseline", modals), package="SuBLIME")
-base_imgs = lapply(base_files, readNIfTI, reorient=FALSE)
-f_files = system.file(file.path("01/FollowUp", modals), package="SuBLIME")
+base_files = system.file("01", "Baseline", modals,
+package = "sublime")
+base_imgs = lapply(base_files, readNIfTI, reorient = FALSE)
+f_files = system.file("01", "FollowUp", modals, package="sublime")
 f_imgs = lapply(f_files, readNIfTI, reorient=FALSE) 
 names(base_imgs) = names(f_imgs) = modes
-baseline_nawm_file =  system.file("01/Baseline/nawm.nii.gz", package="SuBLIME")
+baseline_nawm_file =  system.file("01", "Baseline", 
+"nawm.nii.gz", package="sublime")
 baseline_nawm_mask =  readNIfTI(baseline_nawm_file, reorient=FALSE)
 baseline_nawm_mask = drop(baseline_nawm_mask)
-follow_up_nawm_file =  system.file("01/FollowUp/nawm.nii.gz", package="SuBLIME")
+follow_up_nawm_file =  system.file("01", "FollowUp", 
+"nawm.nii.gz", package="sublime")
 follow_up_nawm_mask =  readNIfTI(follow_up_nawm_file, reorient=FALSE) 
-brain_file =  system.file("01/duramask.nii.gz", package="SuBLIME")
+brain_file =  system.file("01", "duramask.nii.gz", package="sublime")
 brain_mask =  readNIfTI(brain_file, reorient=FALSE) 
 brain_mask = drop(brain_mask)
-
+on_cran = !identical(Sys.getenv("NOT_CRAN"), "true")
+if (on_cran) {
 follow_up_nawm_mask = NULL
 baseline_nawm_mask = NULL
+}
 smooth.using = "GaussSmoothArray"
 verbose = TRUE
 time_diff = 10
 voxsel = TRUE
-model = SuBLIME_model
+model = sublime_model
 #voxsel.sigma = s.sigma =diag(3,3)
 #s.ksize = 3
 #voxsel.ksize = 5
@@ -126,9 +147,26 @@ baseline_nawm_mask = baseline_nawm_mask,
 brain_mask = brain_mask,
 voxsel = voxsel,
 model = model, plot.imgs= TRUE,
-pdfname = "~/Dropbox/SuBLIME_Web_Test/01/pckg_diagnostc.pdf"
+pdfname = file.path(tempdir(), "pckg_diagnostc.pdf")
 )
-
+ 
+ 
+nopd_outimg = SuBLIME_prediction(
+ baseline_flair = base_imgs[["FLAIR"]],
+follow_up_flair= f_imgs[["FLAIR"]],
+baseline_pd = NULL,
+follow_up_pd = NULL,
+baseline_t2 = base_imgs[["T2"]],
+follow_up_t2 = f_imgs[["T2"]],
+baseline_t1 = base_imgs[["VolumetricT1"]],
+follow_up_t1 = f_imgs[["VolumetricT1"]],
+time_diff = time_diff,
+baseline_nawm_mask = baseline_nawm_mask,
+brain_mask = brain_mask,
+voxsel = TRUE,
+model = sublime::nopd_sublime_model, plot.imgs= TRUE,
+pdfname = file.path(tempdir(), "pckg_diagnostc.pdf")
+)  
 names(base_imgs) = paste0("baseline_", c("flair", "pd", "t2", "t1"))
 names(f_imgs) = paste0("follow_up_", c("flair", "pd", "t2", "t1"))
 attach(base_imgs)
@@ -139,4 +177,3 @@ attach(f_imgs)
 predict
 }
 \keyword{Sublime_prediction}
-

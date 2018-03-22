@@ -13,14 +13,26 @@
 #'}
 normalize <- function(image, mask = NULL){
 	
-  if (is.null(mask)){
+  if (is.null(mask)) {
     return(image)
+  }
+  if (is.character(image)) {
+    image = readNIfTI(image, reorient = FALSE)
+  }
+  if (is.character(mask)) {
+    mask = readNIfTI(mask, reorient = FALSE)
   }
   ### Check dimensions
   stopifnot(all.equal(dim(mask)[1:3], dim(image)[1:3]))
   
   ### Need a logical mask
   stopifnot(inherits(mask[1], "logical"))
+
+  ### could also do this
+  # umask = unique(c(mask))
+  # umask = as.numeric(umask)
+  # stopifnot(all(umask %in% c(0, 1, NA)))
+  # mask = mask != 0  
   
   #### Get indices from the mask - faster because subset one time
   ind = which(mask)

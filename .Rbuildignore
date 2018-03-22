@@ -2,3 +2,7 @@
 ^\.Rproj\.user$
 README\.md
 ^\.travis\.yml$
+data/.Rapp.history
+^refit_sublime\.R$
+^README\.Rmd$
+sublime_train_data\.rda$
