@@ -1,30 +1,24 @@
 # R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
-
 language: R
 sudo: false
 cache: packages
-r_check_args: --as-cran
 
-  # - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; 
-  #   then 
-  #   ( Xvfb :99 -ac -screen 0 1024x768x8; echo ok )& ; 
-  #   fi
-  # - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; 
-  #   then 
-  #   sh -e /etc/init.d/xvfb start ;
-  #   fi 
+services:
+  - xvfb
+
 before_script:
-  - "export DISPLAY=:99.0"
   - fname=travis_helpers.sh
   - wget -O ${fname} http://bit.ly/travis_helpers
   - cat ${fname}; source ${fname}; rm ${fname}  
-  - start_xvfb ;    
-  - sleep 3
+  - codename=`linux_codename`;
+  - if [ "${codename}" = "trusty" ];
+    then
+      start_xvfb ;
+    fi  
   
 os: 
   - linux
   - osx
-osx_image: xcode9 
 
 bioc_required: yes
 use_bioc: yes
