@@ -3,7 +3,6 @@
 
 # Download script file from GitHub
 init:
-  - "ECHO %PYTHON_VERSION% %MINICONDA%"  
   - rm -f travis-tool.sh
   - ps: |
         $ErrorActionPreference = "Stop"
@@ -24,13 +23,6 @@ environment:
 
 install:
   - ps: Bootstrap
-  - ps: (new-object net.webclient).DownloadFile('https://github.com/muschellij2/neuroc_dependencies/raw/master/JAGS-4.2.0-Rtools33.exe', 'C:\projects\JAGS-4.2.0.exe')
-  - cmd: C:\projects\JAGS-4.2.0.exe /S
-  - "set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
-  - conda config --set always_yes yes --set changeps1 no
-  - if exist "requirements.txt" conda update -q conda
-  - if exist "requirements.txt" conda info -a
-  - if exist "requirements.txt" conda create -q -n test-environment python="%PYTHON_VERSION%" --file requirements.txt
 
 
 cache:
@@ -54,23 +46,6 @@ test_script:
   # need the tool a level above
   - cp ../travis-tool.sh C:\
   - cd C:\run
-  # setting PATH to be specific - no MinGW overall - just R's
-  # - set PATH=C:\Rtools\bin;C:\Rtools\MinGW\bin;
-  # - set PATH=%PATH%;C:\Rtools\gcc-4.6.3\bin;
-  # - set PATH=%PATH%;C:\Rtools\mingw_64\bin;
-  # - set PATH=%PATH%;C:\Program Files\Git\cmd;
-  # - set PATH=%PATH%;C:\Program Files (x86)\CMake\bin;
-  # - set PATH=%PATH%;"C:\Program Files (x86)\CMake\bin";
-  # - set PATH=%PATH%;C:\R\bin\x64;  
-  # - set PATH=%PATH%;C:\Program Files\Git\usr\bin  
-  # - set PATH=%PATH%;C:\Users\appveyor\AppData\Roaming\npm
-  # - set PATH=%PATH%;C:\Users\appveyor\AppData\Local\Yarn\bin
-  # - set PATH=%PATH%;C:\Program Files\AppVeyor\BuildAgent\
-  # - set PATH=%PATH%;C:\Windows\system32
-  # - set PATH=%PATH%;C:\Windows
-  # - set PATH=%PATH%;C:\Windows\System32\Wbem
-  # - set PATH=%PATH%;C:\Windows\System32\WindowsPowerShell\v1.0\
-  # - set PATH=%PATH%;C:\Program Files\7-Zip
   - travis-tool.sh run_tests
   - ls
   - ls ../
