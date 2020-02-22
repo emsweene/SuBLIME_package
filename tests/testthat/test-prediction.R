@@ -1,17 +1,34 @@
 testthat::context("Running core functions")
 
-library(neurobase)
+if (requireNamespace("neurobase", quietly = TRUE)) {
+  library(neurobase)
+} else {
+  readnii = function(...) {
+    suppressWarnings({
+      nim = oro.nifti::readNIfTI(..., reorient = FALSE)
+    })    
+    nim = oro.nifti::drop_img_dim(nim)
+    nim = oro.nifti::as.nifti(nim)
+    nim
+  }
+  fast_readnii = readnii
+  check_nifti = function(..., fast = FALSE) {
+    lapply(..., readnii)
+  }  
+  
+}
+
 dl = download_data(folder = tempdir())
 modes = c("FLAIR", "PD", "T2", "VolumetricT1")
 modals = paste0(modes, "norm.nii.gz")
 base_files = file.path(tempdir(), "01", "Baseline", modals)
 
 testthat::expect_true(all(file.exists(base_files)))
-base_imgs = neurobase::check_nifti(base_files, fast = TRUE)
+base_imgs = check_nifti(base_files, fast = TRUE)
 
 f_files = file.path(tempdir(), "01", "FollowUp", modals)
 testthat::expect_true(all(file.exists(f_files)))
-f_imgs = neurobase::check_nifti(f_files, fast = TRUE)
+f_imgs = check_nifti(f_files, fast = TRUE)
 names(base_imgs) = names(f_imgs) = modes
 
 baseline_nawm_file =  file.path(tempdir(), "01", "Baseline",
@@ -67,9 +84,9 @@ testthat::test_that("Prediction without Smoothing", {
     model = model, plot.imgs = TRUE,
     pdfname = file.path(tempdir(), "pckg_diagnostc.pdf")
   )
-  testthat::expect_equal(sum(outimg), 1813.0779178359)
-  testthat::expect_equal(max(outimg), 0.999999905081592)
-  testthat::expect_equal(sum(outimg > 0.5), 1565L)  
+  testthat::expect_equal(sum(outimg), 1470.89250384455)
+  testthat::expect_equal(max(outimg), 0.999999295985094)
+  testthat::expect_equal(sum(outimg > 0.5), 1343L)  
   
   
   
@@ -93,9 +110,9 @@ testthat::test_that("Prediction without Smoothing", {
     pdfname = file.path(tempdir(), "pckg_diagnostc.pdf")
   )
   
-  testthat::expect_equal(sum(nopd_outimg), 1652.83425266445)
-  testthat::expect_equal(max(nopd_outimg), 0.999999738113876)
-  testthat::expect_equal(sum(nopd_outimg > 0.5), 1414L)  
+  testthat::expect_equal(sum(nopd_outimg), 1325.37639250814)
+  testthat::expect_equal(max(nopd_outimg), 0.999997878227761)
+  testthat::expect_equal(sum(nopd_outimg > 0.5), 1221L)  
   
   
 })
@@ -108,7 +125,8 @@ testthat::test_that("Prediction with Smoothing", {
   voxsel = TRUE
   model = sublime_model
   
-  for (i in 1:3) {
+  for (i in 1:4) {
+    print(i)
     outimg = SuBLIME_prediction(
       baseline_flair = base_imgs[["FLAIR"]],
       follow_up_flair = f_imgs[["FLAIR"]],
