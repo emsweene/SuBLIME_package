@@ -4,8 +4,13 @@
 \alias{voxel_select}
 \title{Select Potential Voxels}
 \usage{
-voxel_select(normalized_baseline_t2, normalized_follow_up_t2, brain_mask,
-  sigma = diag(3, 3), ksize = 5)
+voxel_select(
+  normalized_baseline_t2,
+  normalized_follow_up_t2,
+  brain_mask,
+  sigma = diag(3, 3),
+  ksize = 5
+)
 }
 \arguments{
 \item{normalized_baseline_t2}{Baseline T2 image, array or object class nifti that}

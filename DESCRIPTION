@@ -2,7 +2,7 @@ Package: sublime
 Type: Package
 Title: Automatic Lesion Incidence Estimation and Detection using 
     Multi-Modality Longitudinal Magnetic Resonance Images
-Version: 1.6.2
+Version: 1.6.3
 Date: 2019-10-22
 Authors@R: c(person(given = "Elizabeth M.", "Sweeney",  
   email = "elizabethmargaretsweeney@gmail.com", role = c("aut", "cre")),
@@ -24,5 +24,7 @@ Imports:
     stats,
     grDevices,
     AnalyzeFMRI
-RoxygenNote: 6.1.1
+RoxygenNote: 7.0.2
 Encoding: UTF-8
+Suggests: 
+    testthat (>= 2.1.0)

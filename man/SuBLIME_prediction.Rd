@@ -5,25 +5,57 @@
 \alias{sublime_prediction}
 \title{Gets predicted probabilities from SuBLIME}
 \usage{
-SuBLIME_prediction(baseline_flair, follow_up_flair, baseline_pd = NULL,
-  follow_up_pd = NULL, baseline_t2, follow_up_t2, baseline_t1,
-  follow_up_t1, time_diff, baseline_nawm_mask = NULL,
-  follow_up_nawm_mask = baseline_nawm_mask, brain_mask,
-  model = sublime::sublime_model, voxsel = TRUE,
-  smooth.using = c("GaussSmoothArray", "none"), voxsel.sigma = diag(3,
-  3), voxsel.ksize = 5, s.sigma = diag(3, 3), s.ksize = 3,
-  plot.imgs = FALSE, slice = 90, pdfname = "diag.pdf",
-  verbose = TRUE)
+SuBLIME_prediction(
+  baseline_flair,
+  follow_up_flair,
+  baseline_pd = NULL,
+  follow_up_pd = NULL,
+  baseline_t2,
+  follow_up_t2,
+  baseline_t1,
+  follow_up_t1,
+  time_diff,
+  baseline_nawm_mask = NULL,
+  follow_up_nawm_mask = baseline_nawm_mask,
+  brain_mask,
+  model = sublime::sublime_model,
+  voxsel = TRUE,
+  smooth.using = c("GaussSmoothArray", "none"),
+  voxsel.sigma = diag(3, 3),
+  voxsel.ksize = 5,
+  s.sigma = diag(3, 3),
+  s.ksize = 3,
+  plot.imgs = FALSE,
+  slice = 90,
+  pdfname = "diag.pdf",
+  verbose = TRUE
+)
 
-sublime_prediction(baseline_flair, follow_up_flair, baseline_pd = NULL,
-  follow_up_pd = NULL, baseline_t2, follow_up_t2, baseline_t1,
-  follow_up_t1, time_diff, baseline_nawm_mask = NULL,
-  follow_up_nawm_mask = baseline_nawm_mask, brain_mask,
-  model = sublime::sublime_model, voxsel = TRUE,
-  smooth.using = c("GaussSmoothArray", "none"), voxsel.sigma = diag(3,
-  3), voxsel.ksize = 5, s.sigma = diag(3, 3), s.ksize = 3,
-  plot.imgs = FALSE, slice = 90, pdfname = "diag.pdf",
-  verbose = TRUE)
+sublime_prediction(
+  baseline_flair,
+  follow_up_flair,
+  baseline_pd = NULL,
+  follow_up_pd = NULL,
+  baseline_t2,
+  follow_up_t2,
+  baseline_t1,
+  follow_up_t1,
+  time_diff,
+  baseline_nawm_mask = NULL,
+  follow_up_nawm_mask = baseline_nawm_mask,
+  brain_mask,
+  model = sublime::sublime_model,
+  voxsel = TRUE,
+  smooth.using = c("GaussSmoothArray", "none"),
+  voxsel.sigma = diag(3, 3),
+  voxsel.ksize = 5,
+  s.sigma = diag(3, 3),
+  s.ksize = 3,
+  plot.imgs = FALSE,
+  slice = 90,
+  pdfname = "diag.pdf",
+  verbose = TRUE
+)
 }
 \arguments{
 \item{baseline_flair}{Baseline FLAIR image, either array or class 
