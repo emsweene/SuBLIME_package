@@ -143,6 +143,12 @@ testthat::test_that("Prediction with Smoothing", {
       model = model, plot.imgs = TRUE,
       pdfname = file.path(tempdir(), "pckg_diagnostc.pdf")
     )
+    rout = round(outimg, 10)
+    
+    testthat::expect_equal(sum(rout), 1470.3759855156)
+    testthat::expect_equal(max(rout), 0.9999779077)
+    testthat::expect_equal(sum(rout > 0.5), 1028L)  
+    
     testthat::expect_equal(sum(outimg), 1812.54867963279)
     testthat::expect_equal(max(outimg), 0.999996324449074)
     testthat::expect_equal(sum(outimg > 0.5), 1239L)  
