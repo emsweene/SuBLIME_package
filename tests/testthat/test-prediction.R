@@ -57,6 +57,7 @@ testthat::test_that("Downloading data", {
 
 
 
+testthat::context("Running Predictions")
 
 testthat::test_that("Prediction without Smoothing", {
   
@@ -116,6 +117,7 @@ testthat::test_that("Prediction without Smoothing", {
   
 })
 
+testthat::context("Running Smoothing Predictions")
 
 testthat::test_that("Prediction with Smoothing", {
   
