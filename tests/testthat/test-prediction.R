@@ -61,7 +61,6 @@ testthat::test_that("Downloading data", {
 testthat::test_that("Prediction without Smoothing", {
   
   
-  smooth.using = "GaussSmoothArray"
   verbose = TRUE
   time_diff = 10
   voxsel = TRUE
